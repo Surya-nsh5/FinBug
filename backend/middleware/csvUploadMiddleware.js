@@ -2,15 +2,8 @@ const multer = require('multer');
 const path = require('path');
 
 // Configure multer for CSV file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/csv/');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'transactions-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
+// Configure multer for CSV file uploads to use memory storage (compatible with Vercel)
+const storage = multer.memoryStorage();
 
 // File filter to accept only CSV files
 const fileFilter = (req, file, cb) => {

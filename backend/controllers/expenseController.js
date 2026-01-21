@@ -2,6 +2,7 @@ const xlsx = require('xlsx');
 const Expense = require('../models/Expense');
 const fs = require('fs');
 const csv = require('csv-parser');
+const { Readable } = require('stream');
 
 // Add Expense Source
 exports.addExpense = async (req, res) => {
@@ -109,8 +110,15 @@ exports.bulkUploadExpenses = async (req, res) => {
   let errorCount = 0;
 
   try {
-    // Read and parse CSV file with UTF-8 encoding
-    fs.createReadStream(req.file.path, { encoding: 'utf8' })
+    // Determine input stream: buffer (memory) or file path (disk)
+    let inputStream;
+    if (req.file.buffer) {
+      inputStream = Readable.from(req.file.buffer.toString('utf8'));
+    } else {
+      inputStream = fs.createReadStream(req.file.path, { encoding: 'utf8' });
+    }
+
+    inputStream
       .pipe(csv({
         mapHeaders: ({ header }) => header.trim(),
         mapValues: ({ value }) => value.trim()
@@ -155,8 +163,10 @@ exports.bulkUploadExpenses = async (req, res) => {
           }
         }
 
-        // Delete uploaded file after processing
-        fs.unlinkSync(req.file.path);
+        // Delete uploaded file if it exists on disk
+        if (req.file.path && fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path);
+        }
 
         // Send response
         res.status(200).json({
@@ -171,7 +181,7 @@ exports.bulkUploadExpenses = async (req, res) => {
       })
       .on('error', (error) => {
         // Delete uploaded file on error
-        if (fs.existsSync(req.file.path)) {
+        if (req.file.path && fs.existsSync(req.file.path)) {
           fs.unlinkSync(req.file.path);
         }
         res.status(500).json({ message: 'Error processing CSV file', error: error.message });
@@ -179,7 +189,7 @@ exports.bulkUploadExpenses = async (req, res) => {
 
   } catch (error) {
     // Delete uploaded file on error
-    if (req.file && fs.existsSync(req.file.path)) {
+    if (req.file.path && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
     res.status(500).json({ message: 'Server error', error: error.message });
