@@ -2,7 +2,6 @@ const xlsx = require('xlsx');
 const Income = require('../models/Income');
 const fs = require('fs');
 const csv = require('csv-parser');
-const { Readable } = require('stream');
 
 // Add Income Source
 exports.addIncome = async (req, res) => {
@@ -110,15 +109,8 @@ exports.bulkUploadIncome = async (req, res) => {
   let errorCount = 0;
 
   try {
-    // Determine input stream: buffer (memory) or file path (disk)
-    let inputStream;
-    if (req.file.buffer) {
-      inputStream = Readable.from(req.file.buffer.toString('utf8'));
-    } else {
-      inputStream = fs.createReadStream(req.file.path, { encoding: 'utf8' });
-    }
-
-    inputStream
+    // Read and parse CSV file with UTF-8 encoding
+    fs.createReadStream(req.file.path, { encoding: 'utf8' })
       .pipe(csv({
         mapHeaders: ({ header }) => header.trim(),
         mapValues: ({ value }) => value.trim()
@@ -163,10 +155,8 @@ exports.bulkUploadIncome = async (req, res) => {
           }
         }
 
-        // Delete uploaded file if it exists on disk
-        if (req.file.path && fs.existsSync(req.file.path)) {
-          fs.unlinkSync(req.file.path);
-        }
+        // Delete uploaded file after processing
+        fs.unlinkSync(req.file.path);
 
         // Send response
         res.status(200).json({
@@ -181,7 +171,7 @@ exports.bulkUploadIncome = async (req, res) => {
       })
       .on('error', (error) => {
         // Delete uploaded file on error
-        if (req.file.path && fs.existsSync(req.file.path)) {
+        if (fs.existsSync(req.file.path)) {
           fs.unlinkSync(req.file.path);
         }
         res.status(500).json({ message: 'Error processing CSV file', error: error.message });
@@ -189,7 +179,7 @@ exports.bulkUploadIncome = async (req, res) => {
 
   } catch (error) {
     // Delete uploaded file on error
-    if (req.file.path && fs.existsSync(req.file.path)) {
+    if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
     res.status(500).json({ message: 'Server error', error: error.message });
