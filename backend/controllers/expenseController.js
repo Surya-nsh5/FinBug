@@ -2,6 +2,7 @@ const xlsx = require('xlsx');
 const Expense = require('../models/Expense');
 const fs = require('fs');
 const csv = require('csv-parser');
+const stream = require('stream');
 
 // Add Expense Source
 exports.addExpense = async (req, res) => {
@@ -78,16 +79,12 @@ exports.downloadExpenseExcel = async (req, res) => {
     const ws = xlsx.utils.json_to_sheet(data);
     xlsx.utils.book_append_sheet(wb, ws, "Expenses");
 
-    const filePath = `expense_details_${Date.now()}.xlsx`;
-    xlsx.writeFile(wb, filePath);
+    // Generate buffer instead of writing to file
+    const excelBuffer = xlsx.write(wb, { type: 'buffer', bookType: 'xlsx' });
 
-    res.download(filePath, 'expense_details.xlsx', (err) => {
-      if (err) {
-        console.error('Error downloading file:', err);
-      }
-      // Delete file after download
-      fs.unlinkSync(filePath);
-    });
+    res.setHeader('Content-Disposition', 'attachment; filename="expense_details.xlsx"');
+    res.type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(excelBuffer);
 
   } catch (error) {
     console.error('Download error:', error);
@@ -109,8 +106,11 @@ exports.bulkUploadExpenses = async (req, res) => {
   let errorCount = 0;
 
   try {
-    // Read and parse CSV file with UTF-8 encoding
-    fs.createReadStream(req.file.path, { encoding: 'utf8' })
+    // Read and parse CSV file from memory buffer
+    const bufferStream = new stream.PassThrough();
+    bufferStream.end(req.file.buffer);
+
+    bufferStream
       .pipe(csv({
         mapHeaders: ({ header }) => header.trim(),
         mapValues: ({ value }) => value.trim()
@@ -155,9 +155,6 @@ exports.bulkUploadExpenses = async (req, res) => {
           }
         }
 
-        // Delete uploaded file after processing
-        fs.unlinkSync(req.file.path);
-
         // Send response
         res.status(200).json({
           message: 'CSV upload completed',
@@ -170,18 +167,11 @@ exports.bulkUploadExpenses = async (req, res) => {
         });
       })
       .on('error', (error) => {
-        // Delete uploaded file on error
-        if (fs.existsSync(req.file.path)) {
-          fs.unlinkSync(req.file.path);
-        }
+        console.error('CSV Processing Error', error);
         res.status(500).json({ message: 'Error processing CSV file', error: error.message });
       });
 
   } catch (error) {
-    // Delete uploaded file on error
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };

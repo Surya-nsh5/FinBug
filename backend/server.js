@@ -30,11 +30,15 @@ app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/ai", aiRoutes);
 app.use("/api/v1/bill", billScanRoutes);
 
-// Server uploads folder
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// Server uploads folder - Not used in Serverless/Memory Storage mode
+// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
+
+module.exports = app;
