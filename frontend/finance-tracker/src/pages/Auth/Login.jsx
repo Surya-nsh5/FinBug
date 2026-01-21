@@ -13,7 +13,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
-  const { updateUser } = useContext(UserContext);
+  const { login } = useContext(UserContext);
 
   const navigate = useNavigate();
 
@@ -42,8 +42,8 @@ const Login = () => {
       const { token, user } = response.data;
 
       if (token) {
-        localStorage.setItem('token', token);
-        updateUser(user);
+        // Use the login function from context for proper session management
+        login(user, token);
         navigate('/dashboard');
       }
     } catch (error) {

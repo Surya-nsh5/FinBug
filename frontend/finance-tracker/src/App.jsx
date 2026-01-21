@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 
 import {
   BrowserRouter as Router,
@@ -13,28 +13,51 @@ import Income from "./pages/Dashboard/Income";
 import Expense from "./pages/Dashboard/Expense";
 import AIInsights from "./pages/Dashboard/AIInsights";
 import Landing from "./pages/Landing/Landing";
-import UserProvider from "./context/UserContext";
+import UserProvider, { UserContext } from "./context/UserContext";
 import { Toaster } from "react-hot-toast";
 import InstallPWA from "./components/InstallPWA";
+
+// Loading component while checking auth
+const AuthLoadingScreen = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="text-center">
+      <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
+      <p className="text-gray-600">Loading...</p>
+    </div>
+  </div>
+);
+
+// App content that uses UserContext
+const AppContent = () => {
+  const { isAuthChecking } = useContext(UserContext);
+
+  // Show loading screen while checking authentication
+  if (isAuthChecking) {
+    return <AuthLoadingScreen />;
+  }
+
+  return (
+    <div>
+      <Router>
+        <InstallPWA />
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" exact element={<Login />} />
+          <Route path="/signUp" exact element={<SignUp />} />
+          <Route path="/dashboard" exact element={<Home />} />
+          <Route path="/income" exact element={<Income />} />
+          <Route path="/expense" exact element={<Expense />} />
+          <Route path="/ai-insights" exact element={<AIInsights />} />
+        </Routes>
+      </Router>
+    </div>
+  );
+};
 
 const App = () => {
   return (
     <UserProvider>
-      <div>
-        <Router>
-          <InstallPWA />
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/login" exact element={<Login />} />
-            <Route path="/signUp" exact element={<SignUp />} />
-            <Route path="/dashboard" exact element={<Home />} />
-            <Route path="/income" exact element={<Income />} />
-            <Route path="/expense" exact element={<Expense />} />
-            <Route path="/ai-insights" exact element={<AIInsights />} />
-          </Routes>
-        </Router>
-      </div>
-
+      <AppContent />
       <Toaster
         toastOptions={{
           className: "",
