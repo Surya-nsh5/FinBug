@@ -19,16 +19,19 @@
             "dest": "/backend/server.js"
         },
         {
-            "src": "/(.*)",
-            "dest": "/frontend/finance-tracker/$1",
-            "continue": true
+            "src": "/assets/(.*)",
+            "dest": "/frontend/finance-tracker/dist/assets/$1"
+        },
+        {
+            "src": "/(?<file>.*\\.(png|jpg|jpeg|svg|ico|json|css|js))",
+            "dest": "/frontend/finance-tracker/dist/$file"
         },
         {
             "handle": "filesystem"
         },
         {
             "src": "/(.*)",
-            "dest": "/frontend/finance-tracker/index.html"
+            "dest": "/frontend/finance-tracker/dist/index.html"
         }
     ]
 }
