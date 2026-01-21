@@ -39,6 +39,14 @@ app.use("/api/v1/bill", billScanRoutes);
 // Server uploads folder - Not used in Serverless/Memory Storage mode
 // app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// Serve static files from the React app build directory
+app.use(express.static(path.join(__dirname, '../frontend/finance-tracker/build')));
+
+// Catch-all handler: send back React's index.html for any request that doesn't match API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/finance-tracker/build/index.html'));
+});
+
 const PORT = process.env.PORT || 5000;
 
 if (require.main === module) {
