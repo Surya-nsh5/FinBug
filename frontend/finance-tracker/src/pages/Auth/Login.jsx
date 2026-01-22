@@ -12,6 +12,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { login } = useContext(UserContext);
 
@@ -32,6 +33,7 @@ const Login = () => {
     }
 
     setError("");
+    setIsLoading(true);
 
     // Login API Call
     try {
@@ -52,6 +54,7 @@ const Login = () => {
       } else {
         setError("Something went wrong. Please try again later.");
       }
+      setIsLoading(false); // Only unset loading on error, on success we navigate away
     }
   }
 
@@ -74,6 +77,7 @@ const Login = () => {
             label="Email"
             placeholder="you@example.com"
             type="text"
+            disabled={isLoading}
           />
 
           <Input
@@ -84,15 +88,17 @@ const Login = () => {
             label="Password"
             placeholder="Enter your password"
             type="password"
+            disabled={isLoading}
           />
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
           <button
             type="submit"
-            className="w-full px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 font-medium text-base"
+            disabled={isLoading}
+            className={`w-full px-6 py-3 bg-black text-white rounded-lg font-medium text-base transition-colors ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-gray-800'}`}
           >
-            Log in
+            {isLoading ? "Logging in..." : "Log in"}
           </button>
 
           <p className="text-sm text-gray-600 text-center">

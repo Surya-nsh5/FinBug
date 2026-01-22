@@ -17,6 +17,7 @@ const Signup = () => {
   const [password, setPassword] = useState("");
 
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const { updateUser } = useContext(UserContext);
 
   const navigate = useNavigate();
@@ -43,6 +44,7 @@ const Signup = () => {
     }
 
     setError("");
+    setIsLoading(true);
 
     // Signup API Call
     try {
@@ -63,6 +65,7 @@ const Signup = () => {
       // Handle custom error (200 OK with error flag) to avoid console noise
       if (response.data.error) {
         setError(response.data.message);
+        setIsLoading(false);
         return;
       }
 
@@ -76,6 +79,7 @@ const Signup = () => {
       } else {
         setError("Something went wrong. Please try again later.");
       }
+      setIsLoading(false);
     }
   };
 
@@ -100,6 +104,7 @@ const Signup = () => {
             label="Full Name"
             placeholder="John Doe"
             type="text"
+            disabled={isLoading}
           />
 
           <Input
@@ -110,6 +115,7 @@ const Signup = () => {
             label="Email"
             placeholder="you@example.com"
             type="text"
+            disabled={isLoading}
           />
 
           <Input
@@ -120,15 +126,17 @@ const Signup = () => {
             type="password"
             id="password"
             name="password"
+            disabled={isLoading}
           />
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
           <button
             type="submit"
-            className="w-full px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 font-medium text-base"
+            disabled={isLoading}
+            className={`w-full px-6 py-3 bg-black text-white rounded-lg font-medium text-base transition-colors ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-gray-800'}`}
           >
-            Sign up
+            {isLoading ? "Creating Account..." : "Sign up"}
           </button>
 
           <p className="text-sm text-gray-600 text-center">

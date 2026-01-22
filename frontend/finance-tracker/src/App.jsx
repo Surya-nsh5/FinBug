@@ -6,16 +6,19 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import Login from "./pages/Auth/Login";
-import SignUp from "./pages/Auth/SignUp";
-import Home from "./pages/Dashboard/Home";
-import Income from "./pages/Dashboard/Income";
-import Expense from "./pages/Dashboard/Expense";
-import AIInsights from "./pages/Dashboard/AIInsights";
-import Landing from "./pages/Landing/Landing";
 import UserProvider, { UserContext } from "./context/UserContext";
 import { Toaster } from "react-hot-toast";
 import InstallPWA from "./components/InstallPWA";
+import { Suspense, lazy } from "react";
+
+// Lazy load pages
+const Login = lazy(() => import("./pages/Auth/Login"));
+const SignUp = lazy(() => import("./pages/Auth/SignUp"));
+const Home = lazy(() => import("./pages/Dashboard/Home"));
+const Income = lazy(() => import("./pages/Dashboard/Income"));
+const Expense = lazy(() => import("./pages/Dashboard/Expense"));
+const AIInsights = lazy(() => import("./pages/Dashboard/AIInsights"));
+const Landing = lazy(() => import("./pages/Landing/Landing"));
 
 // Loading component while checking auth
 const AuthLoadingScreen = () => (
@@ -40,15 +43,17 @@ const AppContent = () => {
     <div>
       <Router>
         <InstallPWA />
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/login" exact element={<Login />} />
-          <Route path="/signUp" exact element={<SignUp />} />
-          <Route path="/dashboard" exact element={<Home />} />
-          <Route path="/income" exact element={<Income />} />
-          <Route path="/expense" exact element={<Expense />} />
-          <Route path="/ai-insights" exact element={<AIInsights />} />
-        </Routes>
+        <Suspense fallback={<AuthLoadingScreen />}>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" exact element={<Login />} />
+            <Route path="/signUp" exact element={<SignUp />} />
+            <Route path="/dashboard" exact element={<Home />} />
+            <Route path="/income" exact element={<Income />} />
+            <Route path="/expense" exact element={<Expense />} />
+            <Route path="/ai-insights" exact element={<AIInsights />} />
+          </Routes>
+        </Suspense>
       </Router>
     </div>
   );

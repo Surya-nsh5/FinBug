@@ -73,7 +73,7 @@ exports.getDashboardData = async (req, res) => {
     const lastTransactions = [
       ...last5Income.map((txn) => ({ ...txn, type: "income" })),
       ...last5Expenses.map((txn) => ({ ...txn, type: "expense" })),
-    ].sort((a, b) => b.date - a.date);
+    ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
     res.json({
       totalBalance:

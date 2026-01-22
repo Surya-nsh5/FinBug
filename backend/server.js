@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config(); // Load env vars
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -18,10 +18,11 @@ const corsOptions = {
     const allowedOrigins = [
       process.env.CLIENT_URL,
       "https://finbug.netlify.app",
+      "https://expense-tracker-frontend-tau.vercel.app",
       "http://localhost:5173",
       "http://localhost:3000",
       "http://localhost:5000"
-    ].filter(Boolean);
+    ].filter(origin => origin); // Remove undefined/null/empty strings
 
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
@@ -41,7 +42,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Handle preflight requests explicitly
-app.options('*', cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
 // Compression middleware for responses
 const compression = require('compression');
@@ -64,13 +65,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// Response time header for monitoring
+// Response time header for monitoring - Removed to fix ERR_HTTP_HEADERS_SENT
+// The 'finish' event happens after headers are sent, causing a crash when trying to set a new header.
 app.use((req, res, next) => {
-  const start = Date.now();
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    res.setHeader('X-Response-Time', `${duration}ms`);
-  });
+  // Simple pass-through
   next();
 });
 
@@ -94,10 +92,24 @@ app.use("/api/v1/bill", billScanRoutes);
 
 const PORT = process.env.PORT || 5000;
 
+// Root route for health check
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "API is running successfully" });
+});
+
 if (require.main === module) {
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
   });
 }
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error("Unhandled Error:", err.stack);
+  res.status(500).json({
+    message: "Internal Server Error",
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+});
 
 module.exports = app;

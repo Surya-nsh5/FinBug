@@ -16,8 +16,16 @@ const UserProvider = ({ children }) => {
         }
     });
 
-    const [isAuthChecking, setIsAuthChecking] = useState(true);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthChecking, setIsAuthChecking] = useState(() => {
+        // Optimistic check: If we have a user and token, don't block the UI
+        const hasToken = !!localStorage.getItem('token');
+        const hasUser = !!localStorage.getItem('user');
+        return hasToken && !hasUser;
+    });
+
+    const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        return !!(localStorage.getItem('token') && localStorage.getItem('user'));
+    });
 
     // Auto-login: Verify token and restore session on app load
     useEffect(() => {
@@ -26,36 +34,28 @@ const UserProvider = ({ children }) => {
                 const token = localStorage.getItem('token');
                 const storedUser = localStorage.getItem('user');
 
-                // If no token, user is not authenticated
                 if (!token) {
                     setIsAuthChecking(false);
                     setIsAuthenticated(false);
                     return;
                 }
 
-                // If we have both token and user data, verify token is still valid
-                if (token && storedUser) {
-                    try {
-                        // Verify token by fetching user info
-                        const response = await axiosInstance.get(API_PATHS.AUTH.GET_USER_INFO);
+                // If we have data, we might be verifying in background. 
+                // Only block if we truly needed to (which we handled in init state)
 
-                        if (response.data && response.data.user) {
-                            // Token is valid, restore user session
-                            const userData = response.data.user;
-                            setUser(userData);
-                            setIsAuthenticated(true);
-                            localStorage.setItem('user', JSON.stringify(userData));
-                        } else {
-                            // Invalid response, clear session
-                            clearSession();
-                        }
-                    } catch (error) {
-                        // Token is invalid or expired, clear session
-                        console.log('Token verification failed, clearing session');
+                try {
+                    const response = await axiosInstance.get(API_PATHS.AUTH.GET_USER_INFO);
+
+                    if (response.data && response.data.user) {
+                        const userData = response.data.user;
+                        setUser(userData);
+                        setIsAuthenticated(true);
+                        localStorage.setItem('user', JSON.stringify(userData));
+                    } else {
                         clearSession();
                     }
-                } else {
-                    // Missing data, clear session
+                } catch (error) {
+                    console.log('Token verification failed, clearing session');
                     clearSession();
                 }
             } catch (error) {
