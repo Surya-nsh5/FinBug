@@ -13,13 +13,12 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Vendor chunks
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'chart-vendor': ['recharts'],
-          'ui-vendor': ['react-hot-toast', 'react-icons', 'emoji-picker-react'],
-          'utils-vendor': ['axios', 'moment']
-        }
+        // manualChunks: {
+        //   'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+        //   'chart-vendor': ['recharts'],
+        //   'ui-vendor': ['react-hot-toast', 'react-icons', 'emoji-picker-react'],
+        //   'utils-vendor': ['axios', 'moment']
+        // }
       }
     },
     // Enable source maps for production debugging (optional, disable for smaller builds)
@@ -41,7 +40,6 @@ export default defineConfig({
       // Optimize JSX runtime
       jsxRuntime: 'automatic'
     }),
-    tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'pwa-192x192.png', 'pwa-512x512.png'],
@@ -73,67 +71,6 @@ export default defineConfig({
             purpose: 'any maskable'
           }
         ]
-      },
-      workbox: {
-        // Optimize caching and performance
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        runtimeCaching: [
-          {
-            // API calls - Network first with cache fallback
-            urlPattern: ({ url }) => url.pathname.startsWith('/api'),
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-cache',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 86400 // 1 day
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              },
-              networkTimeoutSeconds: 10
-            }
-          },
-          {
-            // Static assets - Cache first
-            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'image-cache',
-              expiration: {
-                maxEntries: 60,
-                maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
-              }
-            }
-          },
-          {
-            // Fonts - Cache first
-            urlPattern: /\.(?:woff|woff2|ttf|eot)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'font-cache',
-              expiration: {
-                maxEntries: 20,
-                maxAgeSeconds: 365 * 24 * 60 * 60 // 1 year
-              }
-            }
-          },
-          {
-            // CSS and JS - Stale while revalidate
-            urlPattern: /\.(?:js|css)$/,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'static-resources',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 7 * 24 * 60 * 60 // 7 days
-              }
-            }
-          }
-        ],
-        // Skip waiting and claim clients immediately
-        skipWaiting: true,
-        clientsClaim: true
       }
     })
   ],
