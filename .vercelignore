@@ -1,8 +1,0 @@
-node_modules
-.env
-.env.local
-dist
-.git
-backend/node_modules
-frontend/finance-tracker/node_modules
-frontend/finance-tracker/dist

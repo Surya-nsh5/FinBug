@@ -1,6 +1,6 @@
-import React, { useRef } from 'react'
-import finbugLogo from '../../assets/finbug.png'
-import heroVideo from '../../assets/videos/video.mp4'
+// Assets are now moved to public folder for better loading
+// import finbugLogo from '../../assets/finbug.png'
+// import heroVideo from '../../assets/videos/video.mp4'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import '../../index.css'
@@ -35,7 +35,7 @@ const Landing = () => {
             {/* Navigation */}
             <nav className="flex items-center justify-between px-6 md:px-12 py-6 max-w-7xl mx-auto">
                 <div className="flex items-center gap-2">
-                    <img src={finbugLogo} alt="FinBug" className="w-10 h-10" />
+                    <img src="/finbug.png" alt="FinBug" className="w-10 h-10" />
                     <span className="text-xl font-semibold">FinBug</span>
                 </div>
                 <div className="flex items-center gap-4 md:gap-6">
@@ -66,7 +66,16 @@ const Landing = () => {
 
                     <div className="relative">
                         <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl border border-gray-200">
-                            <video src={heroVideo} className="w-full h-full object-cover" autoPlay loop muted playsInline />
+                            <video
+                                src="/videos/video.mp4"
+                                className="w-full h-full object-cover"
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                preload="metadata"
+                                poster="/finbug.png"
+                            />
                         </div>
                     </div>
                 </div>
