@@ -10,6 +10,8 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const billScanRoutes = require("./routes/billScanRoutes");
 
+
+// Force restart to load env vars
 const app = express();
 
 // CORS configuration - Enhanced for Vercel serverless

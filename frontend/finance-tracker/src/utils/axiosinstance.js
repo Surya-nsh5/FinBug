@@ -36,7 +36,7 @@ axiosInstance.interceptors.response.use(
                 // Redirect to login or refresh token logic
                 window.location.href = '/login';
             } else if (error.response.status === 500) {
-                console.error("Internal Server Error. Please try again later.");
+                console.error("Internal Server Error:", error.response.data);
             }
         } else if (error.code === 'ECONNABORTED') {
             console.error("Request timed out. Please try again.");
