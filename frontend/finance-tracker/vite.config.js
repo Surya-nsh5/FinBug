@@ -78,6 +78,7 @@ export default defineConfig({
       workbox: {
         // Optimize caching and performance
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024, // 4MB
         runtimeCaching: [
           {
             // API calls - Network first with cache fallback
