@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 
 import {
   BrowserRouter as Router,
@@ -6,23 +6,44 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import Login from "./pages/Auth/Login";
-import SignUp from "./pages/Auth/SignUp";
-import Home from "./pages/Dashboard/Home";
-import Income from "./pages/Dashboard/Income";
-import Expense from "./pages/Dashboard/Expense";
-import AIInsights from "./pages/Dashboard/AIInsights";
-import Landing from "./pages/Landing/Landing";
-import UserProvider from "./context/UserContext";
+import UserProvider, { UserContext } from "./context/UserContext";
 import { Toaster } from "react-hot-toast";
 import InstallPWA from "./components/InstallPWA";
+import { Suspense, lazy } from "react";
 
-const App = () => {
+// Lazy load pages
+const Login = lazy(() => import("./pages/Auth/Login"));
+const SignUp = lazy(() => import("./pages/Auth/SignUp"));
+const Home = lazy(() => import("./pages/Dashboard/Home"));
+const Income = lazy(() => import("./pages/Dashboard/Income"));
+const Expense = lazy(() => import("./pages/Dashboard/Expense"));
+const AIInsights = lazy(() => import("./pages/Dashboard/AIInsights"));
+const Landing = lazy(() => import("./pages/Landing/Landing"));
+
+// Loading component while checking auth
+const AuthLoadingScreen = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="text-center">
+      <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
+      <p className="text-gray-600">Loading...</p>
+    </div>
+  </div>
+);
+
+// App content that uses UserContext
+const AppContent = () => {
+  const { isAuthChecking } = useContext(UserContext);
+
+  // Show loading screen while checking authentication
+  if (isAuthChecking) {
+    return <AuthLoadingScreen />;
+  }
+
   return (
-    <UserProvider>
-      <div>
-        <Router>
-          <InstallPWA />
+    <div>
+      <Router>
+        <InstallPWA />
+        <Suspense fallback={<AuthLoadingScreen />}>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/login" exact element={<Login />} />
@@ -32,9 +53,16 @@ const App = () => {
             <Route path="/expense" exact element={<Expense />} />
             <Route path="/ai-insights" exact element={<AIInsights />} />
           </Routes>
-        </Router>
-      </div>
+        </Suspense>
+      </Router>
+    </div>
+  );
+};
 
+const App = () => {
+  return (
+    <UserProvider>
+      <AppContent />
       <Toaster
         toastOptions={{
           className: "",

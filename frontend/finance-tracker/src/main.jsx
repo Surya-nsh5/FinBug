@@ -15,8 +15,12 @@ if (import.meta.env.DEV) {
   }
 }
 
+import ErrorBoundary from './components/common/ErrorBoundary';
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 )

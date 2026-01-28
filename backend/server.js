@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config(); // Load env vars
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -12,11 +12,65 @@ const billScanRoutes = require("./routes/billScanRoutes");
 
 const app = express();
 
-app.use(cors({
-  origin: process.env.CLIENT_URL || "*",
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+// CORS configuration - Enhanced for Vercel serverless
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      process.env.CLIENT_URL,
+      "https://finbug.netlify.app",
+      "https://expense-tracker-frontend-tau.vercel.app",
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "http://localhost:5000"
+    ].filter(origin => origin); // Remove undefined/null/empty strings
+
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(null, true); // For now, allow all origins to debug
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly
+app.options(/.*/, cors(corsOptions));
+
+// Compression middleware for responses
+const compression = require('compression');
+app.use(compression({
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    return compression.filter(req, res);
+  },
+  level: 6 // Compression level (0-9, 6 is default)
 }));
+
+// Security headers
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  next();
+});
+
+// Response time header for monitoring - Removed to fix ERR_HTTP_HEADERS_SENT
+// The 'finish' event happens after headers are sent, causing a crash when trying to set a new header.
+app.use((req, res, next) => {
+  // Simple pass-through
+  next();
+});
 
 app.use(express.json({ limit: '10mb', charset: 'utf-8' }));
 app.use(express.urlencoded({ extended: true, charset: 'utf-8' }));
@@ -30,17 +84,32 @@ app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/ai", aiRoutes);
 app.use("/api/v1/bill", billScanRoutes);
 
-// Server uploads folder
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// Server uploads folder - Not used in Serverless/Memory Storage mode
+// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Note: Static file serving removed for Vercel deployment
+// Frontend is deployed separately on Netlify
 
 const PORT = process.env.PORT || 5000;
 
-// Export the app for Vercel
-module.exports = app;
+// Root route for health check
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "API is running successfully" });
+});
 
-// Only listen if the file is running directly (not imported as a module)
 if (require.main === module) {
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
   });
 }
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error("Unhandled Error:", err.stack);
+  res.status(500).json({
+    message: "Internal Server Error",
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+});
+
+module.exports = app;

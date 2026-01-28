@@ -61,6 +61,7 @@ const Home = () => {
             value={addThousandsSeparator(dashboardData?.totalBalance || 0)}
             color="bg-purple-500"
             index={0}
+            loading={loading}
           />
 
           <InfoCard
@@ -69,6 +70,7 @@ const Home = () => {
             value={addThousandsSeparator(dashboardData?.totalIncome || 0)}
             color="bg-orange-500"
             index={1}
+            loading={loading}
           />
 
           <InfoCard
@@ -77,6 +79,7 @@ const Home = () => {
             value={addThousandsSeparator(dashboardData?.totalExpenses || 0)}
             color="bg-red-500"
             index={2}
+            loading={loading}
           />
         </div>
 

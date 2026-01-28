@@ -7,58 +7,79 @@ exports.getDashboardData = async (req, res) => {
     const userId = req.user._id;
     const userObjectId = new Types.ObjectId(String(userId));
 
-    // Fetch Total Income & Expense
-    const totalIncome = await Income.aggregate([
+    // 1. Total Income (Aggregation)
+    const totalIncomePromise = Income.aggregate([
       { $match: { userId: userObjectId } },
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
 
-    const totalExpense = await Expense.aggregate([
+    // 2. Total Expense (Aggregation)
+    const totalExpensePromise = Expense.aggregate([
       { $match: { userId: userObjectId } },
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
 
-    // Income last 60 days
-    const last60DaysIncomeTransactions = await Income.find({
+    // 3. Income last 60 days
+    const last60DaysIncomePromise = Income.find({
       userId: userObjectId,
       date: { $gte: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000) },
-    }).sort({ date: -1 });
+    }).sort({ date: -1 }).lean();
+
+    // 4. Expense last 30 days
+    const last30DaysExpensePromise = Expense.find({
+      userId: userObjectId,
+      date: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
+    }).sort({ date: -1 }).lean();
+
+    // 5. Recent 5 Incomes
+    const last5IncomePromise = Income.find({ userId: userObjectId })
+      .sort({ date: -1 })
+      .limit(5)
+      .lean();
+
+    // 6. Recent 5 Expenses
+    const last5ExpensesPromise = Expense.find({ userId: userObjectId })
+      .sort({ date: -1 })
+      .limit(5)
+      .lean();
+
+    // Execute parallelly
+    const [
+      totalIncomeResult,
+      totalExpenseResult,
+      last60DaysIncomeTransactions,
+      last30DaysExpenseTransactions,
+      last5Income,
+      last5Expenses
+    ] = await Promise.all([
+      totalIncomePromise,
+      totalExpensePromise,
+      last60DaysIncomePromise,
+      last30DaysExpensePromise,
+      last5IncomePromise,
+      last5ExpensesPromise
+    ]);
 
     const incomeLast60Days = last60DaysIncomeTransactions.reduce(
       (sum, t) => sum + t.amount,
       0
     );
 
-    // Expense last 30 days
-    const last30DaysExpenseTransactions = await Expense.find({
-      userId: userObjectId,
-      date: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
-    }).sort({ date: -1 });
-
     const expenseLast30Days = last30DaysExpenseTransactions.reduce(
       (sum, t) => sum + t.amount,
       0
     );
 
-    // Last 5 transactions (fixed)
-    const last5Income = await Income.find({ userId: userObjectId })
-      .sort({ date: -1 })
-      .limit(5);
-
-    const last5Expenses = await Expense.find({ userId: userObjectId })
-      .sort({ date: -1 })
-      .limit(5);
-
     const lastTransactions = [
-      ...last5Income.map((txn) => ({ ...txn.toObject(), type: "income" })),
-      ...last5Expenses.map((txn) => ({ ...txn.toObject(), type: "expense" })),
-    ].sort((a, b) => b.date - a.date);
+      ...last5Income.map((txn) => ({ ...txn, type: "income" })),
+      ...last5Expenses.map((txn) => ({ ...txn, type: "expense" })),
+    ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
     res.json({
       totalBalance:
-        (totalIncome[0]?.total || 0) - (totalExpense[0]?.total || 0),
-      totalIncome: totalIncome[0]?.total || 0,
-      totalExpenses: totalExpense[0]?.total || 0,
+        (totalIncomeResult[0]?.total || 0) - (totalExpenseResult[0]?.total || 0),
+      totalIncome: totalIncomeResult[0]?.total || 0,
+      totalExpenses: totalExpenseResult[0]?.total || 0,
 
       last30DaysExpenses: {
         total: expenseLast30Days,
