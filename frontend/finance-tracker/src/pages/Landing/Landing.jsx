@@ -75,7 +75,6 @@ const Landing = () => {
                                 muted
                                 playsInline
                                 preload="metadata"
-                                poster="/finbug.png"
                             />
                         </div>
                     </div>
