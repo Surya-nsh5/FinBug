@@ -2,6 +2,7 @@
 // import finbugLogo from '../../assets/finbug.png'
 // import heroVideo from '../../assets/videos/video.mp4'
 import { useNavigate } from 'react-router-dom'
+import { useRef } from 'react'
 import toast from 'react-hot-toast'
 import '../../index.css'
 
