@@ -7,7 +7,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig({
   base: '/',
   build: {
-    outDir: 'dist',
+    outDir: 'build',
     // Enable minification with esbuild (faster and built-in)
     minify: 'esbuild',
     // Optimize chunk size
