@@ -4,7 +4,7 @@ const User = require('../models/User');
 // Generate JWT token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '1h',
+    expiresIn: '365d',
   });
 };
 
@@ -25,7 +25,7 @@ exports.registerUser = async (req, res) => {
 
     const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
-      return res.status(200).json({ error: true, message: "User already exists" });
+      return res.status(409).json({ message: "User already exists" });
     }
 
     const user = await User.create({
@@ -79,8 +79,39 @@ exports.getUserInfo = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    res.status(200).json(user);
+    res.status(200).json({ user });
   } catch (err) {
     res.status(500).json({ message: "Error getting user info", error: err.message });
+  }
+};
+
+// Update User
+exports.updateUser = async (req, res) => {
+  try {
+    const { fullName, profileImageUrl } = req.body;
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (fullName) user.fullName = fullName;
+    if (profileImageUrl) user.profileImageUrl = profileImageUrl;
+
+    const updatedUser = await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: {
+        _id: updatedUser._id,
+        fullName: updatedUser.fullName,
+        email: updatedUser.email,
+        profileImageUrl: updatedUser.profileImageUrl,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Error updating user", error: err.message });
   }
 };

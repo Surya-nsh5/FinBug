@@ -3,6 +3,7 @@ const {
   addExpense,
   getAllExpense,
   deleteExpense,
+  deleteAllExpense,
   downloadExpenseExcel,
   bulkUploadExpenses
 } = require("../controllers/expenseController");
@@ -16,6 +17,7 @@ router.post("/add", protect, addExpense);
 router.get("/get", protect, getAllExpense);
 router.get("/downloadexcel", protect, downloadExpenseExcel);
 router.post("/bulk-upload", protect, upload.single('file'), bulkUploadExpenses);
+router.delete("/delete-all", protect, deleteAllExpense);
 router.delete("/:id", protect, deleteExpense);
 
 module.exports = router;

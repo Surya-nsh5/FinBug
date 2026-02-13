@@ -1,12 +1,26 @@
 import axios from 'axios';
-import { BASE_URL } from "./apiPaths";
+
+const getBaseUrl = () => {
+    if (import.meta.env.VITE_API_BASE_URL) {
+        return import.meta.env.VITE_API_BASE_URL;
+    }
+    // Check if we are in production mode
+    if (import.meta.env.PROD) {
+        // In production, force using the specific env var or relative path 
+        // to avoid incorrect localhost defaults.
+        if (!import.meta.env.VITE_API_BASE_URL) {
+            console.error("VITE_API_BASE_URL is not set! API calls will fail.");
+        }
+        return '';
+    }
+    return 'http://localhost:5000';
+};
 
 const axiosInstance = axios.create({
-    baseURL: BASE_URL,
+    baseURL: getBaseUrl(),
     timeout: 60000, // Increased to 60 seconds for AI processing
     headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
     },
 });
 

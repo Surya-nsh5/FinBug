@@ -9,7 +9,7 @@ const DashboardLayout = ({ children, activeMenu }) => {
   const showContent = !!user || isDev; // In dev, allow rendering even if user is missing
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-[var(--color-bg)] transition-colors duration-300'>
       {/* Navbar only visible on mobile - fixed at top */}
       <div className='lg:hidden'>
         <Navbar activeMenu={activeMenu} />
@@ -23,11 +23,8 @@ const DashboardLayout = ({ children, activeMenu }) => {
           </div>
 
           {/* Main Content Area - scrollable with padding for mobile navbar */}
-          <div className='flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pt-20 lg:pt-4'>
+          <div className='flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6 lg:pb-8 pt-24 lg:pt-8 bg-[var(--color-bg)] transition-colors duration-300'>
             {children}
-            {(!user && isDev) && (
-              <div className='mt-4 text-sm text-yellow-700'>Dev notice: no user found in context; rendering for debugging.</div>
-            )}
           </div>
         </div>
       )}

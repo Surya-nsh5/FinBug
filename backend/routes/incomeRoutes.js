@@ -3,6 +3,7 @@ const {
   addIncome,
   getAllIncome,
   deleteIncome,
+  deleteAllIncome,
   downloadIncomeExcel,
   bulkUploadIncome
 } = require("../controllers/incomeController");
@@ -16,6 +17,7 @@ router.post("/add", protect, addIncome);
 router.get("/get", protect, getAllIncome);
 router.get("/downloadexcel", protect, downloadIncomeExcel);
 router.post("/bulk-upload", protect, upload.single('file'), bulkUploadIncome);
+router.delete("/delete-all", protect, deleteAllIncome);
 router.delete("/:id", protect, deleteIncome);
 
 module.exports = router;

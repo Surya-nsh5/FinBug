@@ -31,36 +31,49 @@ const UserProvider = ({ children }) => {
     useEffect(() => {
         const verifyAndRestoreSession = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const storedUser = localStorage.getItem('user');
+                // Request persistent storage for PWA longevity
+                if (navigator.storage && navigator.storage.persist) {
+                    navigator.storage.persist().catch(() => { });
+                }
 
+                const token = localStorage.getItem('token');
                 if (!token) {
                     setIsAuthChecking(false);
                     setIsAuthenticated(false);
                     return;
                 }
 
-                // If we have data, we might be verifying in background. 
-                // Only block if we truly needed to (which we handled in init state)
-
                 try {
                     const response = await axiosInstance.get(API_PATHS.AUTH.GET_USER_INFO);
 
-                    if (response.data && response.data.user) {
-                        const userData = response.data.user;
+                    let userData = null;
+                    if (response.data) {
+                        if (response.data.user) {
+                            userData = response.data.user;
+                        } else if (response.data._id || response.data.email) {
+                            userData = response.data;
+                        }
+                    }
+
+                    if (userData) {
                         setUser(userData);
                         setIsAuthenticated(true);
                         localStorage.setItem('user', JSON.stringify(userData));
-                    } else {
-                        clearSession();
                     }
                 } catch (error) {
-                    console.log('Token verification failed, clearing session');
-                    clearSession();
+                    // ONLY clear session if it's an auth error (401/403)
+                    // If it's a network error or 500, keep the existing session data
+                    if (error.response && [401, 403].includes(error.response.status)) {
+                        console.log('Authentication expired or invalid, clearing session');
+                        clearSession();
+                    } else {
+                        console.log('Network error or server down, keeping existing session');
+                        // We still have local data, so keep isAuthenticated true
+                        setIsAuthenticated(true);
+                    }
                 }
             } catch (error) {
                 console.error('Session restoration error:', error);
-                clearSession();
             } finally {
                 setIsAuthChecking(false);
             }

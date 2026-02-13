@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import moment from "moment";
 import DashboardLayout from "../../components/layouts/DashboardLayout";
 import IncomeOverview from "../../components/Income/IncomeOverview";
 import axiosInstance from "../../utils/axiosinstance";
@@ -20,6 +21,8 @@ const Income = () => {
   const [openAddIncomeModal, setOpenAddIncomeModal] = useState(false);
   const addButtonRef = useRef(null);
   const submitHandlerRef = useRef(null);
+
+  const [dateRange, setDateRange] = useState("30");
 
   // Get All Income Details
   const fetchIncomeDetails = useCallback(async () => {
@@ -139,6 +142,62 @@ const Income = () => {
     </button>
   );
 
+  // Filter Income Data
+  const filteredIncome = useMemo(() => {
+    if (dateRange === "all") return incomeData;
+
+    const days = parseInt(dateRange);
+    const cutoffDate = moment().subtract(days, 'days').startOf('day');
+
+    return incomeData.filter(item => moment(item.date).isSameOrAfter(cutoffDate));
+  }, [incomeData, dateRange]);
+
+  // Prepare chart data
+  const chartData = useMemo(() => {
+    const dataMap = {};
+
+    if (dateRange === "30" || dateRange === "90") {
+      const days = parseInt(dateRange);
+      for (let i = days - 1; i >= 0; i--) {
+        const date = moment().subtract(i, 'days').format('DD MMM');
+        dataMap[date] = { name: date, amount: 0 };
+      }
+
+      filteredIncome.forEach(item => {
+        const date = moment(item.date).format('DD MMM');
+        if (dataMap[date]) {
+          dataMap[date].amount += Number(item.amount);
+        }
+      });
+    } else {
+      // For 365 Days or All time, group by Month
+      if (dateRange === "365") {
+        for (let i = 11; i >= 0; i--) {
+          const date = moment().subtract(i, 'months').format('MMM YYYY');
+          dataMap[date] = { name: date, amount: 0 };
+        }
+      }
+
+      filteredIncome.forEach(item => {
+        const date = moment(item.date).format('MMM YYYY');
+        // Dynamic keys for lifetime
+        if (dateRange === "all" && !dataMap[date]) {
+          dataMap[date] = { name: date, amount: 0, sortKey: moment(item.date).format('YYYYMM') };
+        }
+
+        if (dataMap[date]) {
+          dataMap[date].amount += Number(item.amount);
+        }
+      });
+
+      if (dateRange === "all") {
+        return Object.values(dataMap).sort((a, b) => a.sortKey - b.sortKey);
+      }
+    }
+
+    return Object.values(dataMap);
+  }, [filteredIncome, dateRange]);
+
   return (
     <DashboardLayout activeMenu="Income">
       <div className="my-4 sm:my-6 mx-auto transition-page">
@@ -146,10 +205,10 @@ const Income = () => {
         <div className="mb-6 sm:mb-8 animate-fade-in">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex-1">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[var(--color-text)] mb-1 sm:mb-2">
                 Income
               </h1>
-              <p className="text-xs sm:text-sm lg:text-base text-gray-500">
+              <p className="text-xs sm:text-sm lg:text-base text-[var(--color-text)] opacity-60">
                 Track and manage your income sources
               </p>
             </div>
@@ -166,15 +225,18 @@ const Income = () => {
         <div className="grid grid-cols-1 gap-4 sm:gap-6">
           <div className="animate-scale-in" style={{ animationDelay: "80ms" }}>
             <IncomeOverview
-              transactions={incomeData}
+              chartData={chartData}
+              transactions={filteredIncome}
               onAddIncome={() => setOpenAddIncomeModal(true)}
               addButtonRef={addButtonRef}
+              dateRange={dateRange}
+              setDateRange={setDateRange}
             />
           </div>
 
           <div className="animate-fade-in" style={{ animationDelay: "160ms" }}>
             <IncomeList
-              transactions={incomeData}
+              transactions={filteredIncome}
               onDelete={deleteIncome}
               onDownload={handleDownloadIncomeDetails}
             />

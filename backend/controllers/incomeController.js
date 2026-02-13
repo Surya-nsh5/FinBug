@@ -57,6 +57,21 @@ exports.deleteIncome = async (req, res) => {
   }
 };
 
+// Delete All Income for a User
+exports.deleteAllIncome = async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const result = await Income.deleteMany({ userId });
+
+    res.json({
+      message: "All income records deleted successfully",
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 // Download Income Source
 exports.downloadIncomeExcel = async (req, res) => {
   const userId = req.user.id;

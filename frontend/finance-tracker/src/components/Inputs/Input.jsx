@@ -11,17 +11,17 @@ const Input = ({ value, onChange, label, placeholder, type, id, name }) => {
 
     return (
         <div className="w-full">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-[var(--color-text)] mb-2">
                 {label}
             </label>
 
-            <div className={`relative input-box transition-all duration-200 ${isFocused ? 'ring-2 ring-purple-300 border-purple-400 shadow-lg shadow-purple-100' : ''}`}>
+            <div className={`relative input-box transition-all duration-200 ${isFocused ? 'ring-2 ring-purple-500/50 border-purple-500' : ''}`}>
                 <input
                     id={id}
                     name={name}
                     type={type == 'password' ? showPassword ? 'text' : 'password' : type}
                     placeholder={placeholder}
-                    className='w-full bg-transparent outline-none text-gray-800 placeholder:text-gray-400'
+                    className='w-full bg-transparent outline-none text-[var(--color-text)] placeholder:text-gray-400'
                     value={value}
                     onChange={(e) => onChange(e)}
                     onFocus={() => setIsFocused(true)}

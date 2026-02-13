@@ -7,6 +7,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import UserProvider, { UserContext } from "./context/UserContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import { Toaster } from "react-hot-toast";
 import InstallPWA from "./components/InstallPWA";
 import { Suspense, lazy } from "react";
@@ -15,10 +16,10 @@ import { Suspense, lazy } from "react";
 const Login = lazy(() => import("./pages/Auth/Login"));
 const SignUp = lazy(() => import("./pages/Auth/SignUp"));
 const Home = lazy(() => import("./pages/Dashboard/Home"));
-const Income = lazy(() => import("./pages/Dashboard/Income"));
-const Expense = lazy(() => import("./pages/Dashboard/Expense"));
+const Transactions = lazy(() => import("./pages/Dashboard/Transactions"));
 const AIInsights = lazy(() => import("./pages/Dashboard/AIInsights"));
 const Landing = lazy(() => import("./pages/Landing/Landing"));
+const Settings = lazy(() => import("./pages/Dashboard/Settings"));
 
 // Loading component while checking auth
 const AuthLoadingScreen = () => (
@@ -49,9 +50,9 @@ const AppContent = () => {
             <Route path="/login" exact element={<Login />} />
             <Route path="/signUp" exact element={<SignUp />} />
             <Route path="/dashboard" exact element={<Home />} />
-            <Route path="/income" exact element={<Income />} />
-            <Route path="/expense" exact element={<Expense />} />
+            <Route path="/transactions" exact element={<Transactions />} />
             <Route path="/ai-insights" exact element={<AIInsights />} />
+            <Route path="/settings" exact element={<Settings />} />
           </Routes>
         </Suspense>
       </Router>
@@ -62,15 +63,17 @@ const AppContent = () => {
 const App = () => {
   return (
     <UserProvider>
-      <AppContent />
-      <Toaster
-        toastOptions={{
-          className: "",
-          style: {
-            fontSize: "13px",
-          },
-        }}
-      />
+      <ThemeProvider>
+        <AppContent />
+        <Toaster
+          toastOptions={{
+            className: "",
+            style: {
+              fontSize: "13px",
+            },
+          }}
+        />
+      </ThemeProvider>
     </UserProvider>
   );
 };

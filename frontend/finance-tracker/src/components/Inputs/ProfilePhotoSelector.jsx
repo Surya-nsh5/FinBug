@@ -1,34 +1,43 @@
 import React, { useRef, useState } from 'react';
 import { LuUser, LuUpload, LuTrash } from 'react-icons/lu';
 
-const ProfilePhotoSelector = ({image, setImage}) => {
-    const inputRef = useRef(null);
-   const [previewUrl, setPreviewUrl] = useState(null);
+const ProfilePhotoSelector = ({ image, setImage }) => {
+  const inputRef = useRef(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
-   const handleImageChange = (e) => {
-        const file = e.target.files[0];
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
     if (file) {
-        // Update the image state
+      // Update the image state
       setImage(file);
-
-        // Generate a preview URL from the file
+      // Generate a preview URL from the file
       const preview = URL.createObjectURL(file);
       setPreviewUrl(preview);
     }
   };
 
+  // If 'image' prop is a URL string (existing image), use it as initial preview
+  React.useEffect(() => {
+    if (typeof image === 'string') {
+      setPreviewUrl(image);
+    } else if (!image) {
+      setPreviewUrl(null);
+    }
+    // If image is a File object, we already set previewUrl in handleImageChange
+  }, [image]);
+
   const handleRemoveImage = () => {
     setImage(null);
     setPreviewUrl(null);
   };
-  
+
   const onChooseFile = () => {
     inputRef.current.click();
   };
 
   return (
     <div className="flex flex-col items-center mb-6">
-      <label className="text-[13px] text-slate-800 mb-2">Profile Photo</label>
+      <label className="text-[13px] text-white mb-2">Profile Photo</label>
 
       <input
         type="file"

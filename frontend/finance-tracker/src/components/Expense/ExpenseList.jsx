@@ -31,7 +31,7 @@ const ExpenseList = React.memo(({ transactions, onDelete, onDownload }) => {
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-6">
-        <h5 className="text-base sm:text-lg font-semibold transition-colors duration-200 hover:text-purple-600">All Expenses</h5>
+        <h5 className="text-base sm:text-lg font-semibold text-[var(--color-text)] transition-colors duration-200 hover:text-purple-600">All Expenses</h5>
 
         <button className="card-btn flex-shrink-0" onClick={handleDownload}>
           <LuDownload className="text-base" /> Download
@@ -70,7 +70,7 @@ const ExpenseList = React.memo(({ transactions, onDelete, onDownload }) => {
           })}
         </div>
       ) : (
-        <div className="text-center py-12 sm:py-16 text-gray-400">
+        <div className="text-center py-12 sm:py-16 text-[var(--color-text)] opacity-40">
           <p className="text-base sm:text-lg mb-2">No expense records yet</p>
           <p className="text-xs sm:text-sm">Add your first expense entry to start tracking!</p>
         </div>

@@ -2,13 +2,15 @@ import React from 'react'
 
 const LogoutConfirm = ({ onCancel, onLogout }) => {
   return (
-    <div>
-      <p className="text-sm">Are you sure you want to logout?</p>
+    <div className="space-y-4">
+      <p className="text-[var(--color-text)] text-sm">
+        Are you sure you want to logout? You will need to sign in again to access your account.
+      </p>
 
-      <div className="flex justify-end gap-3 mt-6">
+      <div className="flex gap-3 justify-end pt-2">
         <button
           type="button"
-          className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm"
+          className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
           onClick={onCancel}
         >
           Cancel
@@ -16,7 +18,7 @@ const LogoutConfirm = ({ onCancel, onLogout }) => {
 
         <button
           type="button"
-          className="add-btn add-btn-fill"
+          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
           onClick={onLogout}
         >
           Logout

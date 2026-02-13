@@ -1,9 +1,8 @@
 import {
   LuLayoutGrid,
-  LuWalletMinimal,
-  LuUsers,
-  LuLogOut,
+  LuArrowLeftRight,
   LuBrain,
+  LuSettings,
 } from "react-icons/lu";
 
 export const SIDE_MENU_DATA = [
@@ -15,26 +14,20 @@ export const SIDE_MENU_DATA = [
   },
   {
     id: "02",
-    label: "Income",
-    icon: LuWalletMinimal,
-    path: "/income",
+    label: "Transactions",
+    icon: LuArrowLeftRight,
+    path: "/transactions",
   },
   {
     id: "03",
-    label: "Expense",
-    icon: LuUsers,
-    path: "/expense",
-  },
-  {
-    id: "04",
     label: "AI Insights",
     icon: LuBrain,
     path: "/ai-insights",
   },
   {
-    id: "06",
-    label: "Logout",
-    icon: LuLogOut,
-    path: "/logout",
+    id: "04",
+    label: "Settings",
+    icon: LuSettings,
+    path: "/settings",
   },
 ];

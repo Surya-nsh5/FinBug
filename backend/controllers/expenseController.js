@@ -57,6 +57,21 @@ exports.deleteExpense = async (req, res) => {
   }
 };
 
+// Delete All Expenses for a User
+exports.deleteAllExpense = async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const result = await Expense.deleteMany({ userId });
+
+    res.json({
+      message: "All expense records deleted successfully",
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 // Download Expense Source
 exports.downloadExpenseExcel = async (req, res) => {
   const userId = req.user.id;

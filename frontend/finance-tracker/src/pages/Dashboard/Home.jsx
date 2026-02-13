@@ -52,7 +52,7 @@ const Home = () => {
 
   return (
     <DashboardLayout activeMenu="Dashboard">
-      <div className="transition-page">
+      <div className="transition-page transition-colors duration-300">
         {/* Info Cards Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <InfoCard
@@ -91,7 +91,7 @@ const Home = () => {
           >
             <RecentTransactions
               transactions={dashboardData?.recentTransactions}
-              onSeeMore={() => navigate("/expense")}
+              onSeeMore={() => navigate("/transactions")}
             />
           </div>
 
@@ -110,8 +110,9 @@ const Home = () => {
         {/* Two Column Layout: Last 60 Days Income and Income List */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <div
-            className="animate-slide-in-left"
+            className="animate-slide-in-left cursor-pointer transition-transform hover:scale-[1.01]"
             style={{ animationDelay: "160ms" }}
+            onClick={() => navigate("/transactions", { state: { activeTab: "income" } })}
           >
             <RecentIncomeWithChart
               data={dashboardData?.last60DaysIncome?.transactions || []}
@@ -125,7 +126,7 @@ const Home = () => {
           >
             <RecentIncome
               transactions={dashboardData?.last60DaysIncome?.transactions || []}
-              onSeeMore={() => navigate("/income")}
+              onSeeMore={() => navigate("/transactions", { state: { activeTab: "income" } })}
             />
           </div>
         </div>
@@ -140,13 +141,14 @@ const Home = () => {
               transactions={
                 dashboardData?.last30DaysExpenses?.transactions || []
               }
-              onSeeMore={() => navigate("/expense")}
+              onSeeMore={() => navigate("/transactions", { state: { activeTab: "expense" } })}
             />
           </div>
 
           <div
-            className="animate-slide-in-right"
+            className="animate-slide-in-right cursor-pointer transition-transform hover:scale-[1.01]"
             style={{ animationDelay: "240ms" }}
+            onClick={() => navigate("/transactions", { state: { activeTab: "expense" } })}
           >
             <Last30DaysExpenses
               data={dashboardData?.last30DaysExpenses?.transactions || []}

@@ -8,6 +8,18 @@ const UserSchema = new mongoose.Schema({
   profileImageUrl: {
     type: String, default: null
   },
+  // AI Usage Tracking
+  aiUsage: {
+    insightsCount: { type: Number, default: 0 },
+    insightsLastReset: { type: Date, default: Date.now },
+    billScansCount: { type: Number, default: 0 },
+    billScansLastReset: { type: Date, default: Date.now }
+  },
+  // Cache last AI analysis
+  lastAIAnalysis: {
+    data: { type: Object, default: null },
+    generatedAt: { type: Date, default: null }
+  }
 },
   { timestamps: true }
 )

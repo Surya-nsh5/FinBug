@@ -1,3 +1,4 @@
+const User = require("../models/User");
 const Income = require("../models/Income");
 const Expense = require("../models/Expense");
 const {
@@ -60,6 +61,14 @@ exports.getFinancialAnalysis = async (req, res) => {
     // Generate AI analysis
     const aiAnalysis = await generateFinancialAnalysis(financialData);
 
+    // Save analysis to user model for caching
+    await User.findByIdAndUpdate(userId, {
+      lastAIAnalysis: {
+        data: aiAnalysis.data,
+        generatedAt: aiAnalysis.generatedAt
+      }
+    });
+
     res.status(200).json({
       success: true,
       insufficientData: false,
@@ -69,6 +78,7 @@ exports.getFinancialAnalysis = async (req, res) => {
         dataRange: financialData.summary.dataQuality.dateRange,
         totalTransactions: financialData.summary.dataQuality.totalTransactions,
       },
+      usageInfo: req.aiUsageInfo, // Include usage info from middleware
     });
   } catch (error) {
     console.error("AI Analysis Error:", error);
@@ -240,3 +250,47 @@ exports.getFinancialHealthScore = async (req, res) => {
     });
   }
 };
+
+/**
+ * Get cached AI analysis (doesn't count towards daily limit)
+ * @route GET /api/v1/ai/cached-analysis
+ * @access Protected
+ */
+exports.getCachedAnalysis = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if cached analysis exists
+    if (!user.lastAIAnalysis || !user.lastAIAnalysis.data) {
+      return res.status(200).json({
+        success: true,
+        hasCachedData: false,
+        message: 'No cached analysis available. Generate new insights to see AI analysis.'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      hasCachedData: true,
+      insufficientData: false,
+      analysis: user.lastAIAnalysis.data,
+      metadata: {
+        generatedAt: user.lastAIAnalysis.generatedAt,
+        isCached: true
+      }
+    });
+  } catch (error) {
+    console.error('Cached Analysis Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve cached analysis',
+      error: error.message
+    });
+  }
+};
+

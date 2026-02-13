@@ -55,21 +55,15 @@ const Signup = () => {
         profileImageUrl = imgUploadRes.imageUrl || "";
       }
 
-      const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
+      // Signup API Call
+      await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
         fullName,
         email,
         password,
         profileImageUrl
       });
 
-      // Handle custom error (200 OK with error flag) to avoid console noise
-      if (response.data.error) {
-        setError(response.data.message);
-        setIsLoading(false);
-        return;
-      }
-
-      const { message } = response.data;
+      // Handle custom error block removed as backend now returns 409 for conflicts
 
       // We don't auto-login anymore. Redirect to login.
       navigate("/login");
@@ -87,8 +81,8 @@ const Signup = () => {
     <AuthLayout showRight={true}>
       <div className="w-full max-w-md mx-auto flex flex-col justify-center flex-1">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-3">Create account</h1>
-          <p className="text-lg text-gray-600">
+          <h1 className="text-4xl font-bold mb-3 text-[var(--color-text)]">Create account</h1>
+          <p className="text-lg text-[var(--color-text)] opacity-70">
             Start tracking your finances today
           </p>
         </div>
@@ -134,14 +128,14 @@ const Signup = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full px-6 py-3 bg-black text-white rounded-lg font-medium text-base transition-colors ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-gray-800'}`}
+            className={`w-full px-6 py-3 bg-purple-600 text-white rounded-lg font-medium text-base transition-colors shadow-md hover:shadow-lg ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-purple-700'}`}
           >
             {isLoading ? "Creating Account..." : "Sign up"}
           </button>
 
-          <p className="text-sm text-gray-600 text-center">
+          <p className="text-sm text-[var(--color-text)] opacity-70 text-center">
             Already have an account?{" "}
-            <Link className="font-medium text-black underline" to="/login">
+            <Link className="font-medium text-[var(--color-text)] underline" to="/login">
               Log in
             </Link>
           </p>

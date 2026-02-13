@@ -7,10 +7,10 @@ const RecentIncome = ({ transactions, onSeeMore }) => {
   return (
     <div className="card h-full flex flex-col">
       <div className="flex items-start justify-between mb-4 sm:mb-6 flex-shrink-0">
-        <h5 className="text-base sm:text-lg font-bold text-gray-900 transition-colors duration-200 hover:text-purple-600">Income</h5>
+        <h5 className="text-base sm:text-lg font-bold text-[var(--color-text)] transition-colors duration-200 hover:text-purple-600">Income</h5>
 
         <button
-          className="text-xs sm:text-sm text-gray-600 hover:text-purple-600 font-medium flex items-center gap-1 transition-all duration-200 hover:gap-2 flex-shrink-0"
+          className="text-xs sm:text-sm text-[var(--color-text)] opacity-70 hover:text-purple-600 font-medium flex items-center gap-1 transition-all duration-200 hover:gap-2 flex-shrink-0"
           onClick={onSeeMore}
         >
           <span className="hidden xs:inline">See All</span>

@@ -119,7 +119,7 @@ const EmojiPickerPopup = ({ icon, onSelect }) => {
             {/* Icon Display/Selector Button */}
             <div
                 ref={containerRef}
-                className="relative group flex items-center gap-3 cursor-pointer p-3 rounded-xl border-2 border-dashed border-gray-200 hover:border-purple-300 hover:bg-purple-50/50 transition-all duration-150"
+                className="relative group flex items-center gap-3 cursor-pointer p-3 rounded-xl border-2 border-dashed border-[var(--color-border)] hover:border-purple-300 hover:bg-purple-50/50 dark:hover:bg-purple-900/20 transition-all duration-150"
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <div className="w-14 h-14 flex items-center justify-center text-2xl bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600 rounded-xl transition-all duration-200 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-md">
@@ -136,15 +136,15 @@ const EmojiPickerPopup = ({ icon, onSelect }) => {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-700 group-hover:text-purple-600 transition-colors duration-150">
+                    <p className="text-sm font-semibold text-[var(--color-text)] group-hover:text-purple-600 transition-colors duration-150">
                         {icon ? "Change Icon" : "Pick an Icon"}
                     </p>
-                    <p className="text-xs text-gray-400 mt-0.5 truncate">
+                    <p className="text-xs text-[var(--color-text)] opacity-40 mt-0.5 truncate">
                         {icon ? "Click to change" : "Click to select emoji"}
                     </p>
                 </div>
 
-                <div className="text-gray-400 group-hover:text-purple-600 transition-colors duration-150 flex-shrink-0">
+                <div className="text-[var(--color-text)] opacity-60 group-hover:text-purple-600 transition-colors duration-150 flex-shrink-0">
                     {isOpen ? (
                         <LuX className="w-5 h-5 animate-fade-in" />
                     ) : (
@@ -172,11 +172,11 @@ const EmojiPickerPopup = ({ icon, onSelect }) => {
                         }}
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="relative bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden w-[380px] backdrop-blur-sm">
-                            <div className="p-3 bg-gradient-to-r from-purple-50 to-purple-100 border-b border-gray-200 flex items-center justify-between">
-                                <p className="text-sm font-semibold text-gray-700">Select Emoji</p>
+                        <div className="relative bg-[var(--color-card)] rounded-2xl shadow-2xl border border-[var(--color-border)] overflow-hidden w-[380px] backdrop-blur-sm">
+                            <div className="p-3 bg-[var(--color-input)] border-b border-[var(--color-border)] flex items-center justify-between">
+                                <p className="text-sm font-semibold text-[var(--color-text)]">Select Emoji</p>
                                 <button
-                                    className="w-7 h-7 flex items-center justify-center bg-white hover:bg-red-50 text-gray-400 hover:text-red-500 border border-gray-200 rounded-lg cursor-pointer transition-all duration-150 hover:scale-110 active:scale-95"
+                                    className="w-7 h-7 flex items-center justify-center bg-[var(--color-card)] hover:bg-red-50 dark:hover:bg-red-900/30 text-[var(--color-text)] opacity-60 hover:text-red-500 border border-[var(--color-border)] rounded-lg cursor-pointer transition-all duration-150 hover:scale-110 active:scale-95"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setIsOpen(false);

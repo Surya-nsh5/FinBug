@@ -1,7 +1,14 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// Initialize Gemini AI with API key from environment
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+/**
+ * Helper to get initialized Gemini client
+ */
+const getGenAI = () => {
+  if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.includes('YOUR-API-KEY-HERE')) {
+    throw new Error('Gemini API Key is missing or invalid. Please update your .env file.');
+  }
+  return new GoogleGenerativeAI(process.env.GEMINI_API_KEY.trim());
+};
 
 /**
  * Generate comprehensive financial analysis and predictions
@@ -10,11 +17,13 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
  */
 exports.generateFinancialAnalysis = async (financialData) => {
   try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-    });
+    const genAI = getGenAI();
+    const modelName = "gemini-1.5-flash";
+    console.log(`AI Service: Using model ${modelName}`);
+    console.log(`AI Service: Key present? ${!!process.env.GEMINI_API_KEY}`);
+    const model = genAI.getGenerativeModel({ model: modelName });
 
-    const prompt = `You are an expert financial advisor AI. Analyze this user's financial data and provide comprehensive insights.
+    const prompt = `You are an expert financial advisor AI. Analyze this user's financial data (Income vs Expenses) and provide comprehensive insights. Focus on actionable advice to save money based on their income level.
 
 USER FINANCIAL DATA:
 ${JSON.stringify(financialData, null, 2)}
@@ -90,7 +99,7 @@ IMPORTANT RULES:
     // Try to extract JSON from the response
     let jsonData;
 
-    // Remove markdown code blocks if present
+    // Clean markdown
     let cleanedText = text
       .replace(/```json\n?/g, "")
       .replace(/```\n?/g, "")
@@ -99,9 +108,21 @@ IMPORTANT RULES:
     // Try to find JSON object
     const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
-      jsonData = JSON.parse(jsonMatch[0]);
+      try {
+        jsonData = JSON.parse(jsonMatch[0]);
+      } catch (e) {
+        console.error("JSON Parse Error (Match):", e);
+        console.error("Raw Text:", text);
+        throw new Error("Failed to parse AI response");
+      }
     } else {
-      jsonData = JSON.parse(cleanedText);
+      try {
+        jsonData = JSON.parse(cleanedText);
+      } catch (e) {
+        console.error("JSON Parse Error (Cleaned):", e);
+        console.error("Raw Text:", text);
+        throw new Error("Failed to parse AI response");
+      }
     }
 
     return {
@@ -111,6 +132,7 @@ IMPORTANT RULES:
     };
   } catch (error) {
     console.error("Gemini API Error:", error);
+    if (error.message.includes("API Key")) throw error;
     throw new Error(`AI Analysis failed: ${error.message}`);
   }
 };
@@ -122,7 +144,8 @@ IMPORTANT RULES:
  */
 exports.predictNextMonthExpenses = async (expenseData) => {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const genAI = getGenAI();
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
     const prompt = `Analyze this expense history and predict next month's total expenses.
 
@@ -166,10 +189,12 @@ Return ONLY valid JSON.`;
  * Analyze spending patterns and identify areas of concern
  * @param {Object} spendingData - Categorized spending data
  * @returns {Object} Spending analysis
+ * @desc    Analyze spending patterns and get recommendations
  */
 exports.analyzeSpendingPatterns = async (spendingData) => {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const genAI = getGenAI();
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
     const prompt = `You are a financial advisor. Analyze this spending pattern and identify where the user should control their expenses.
 

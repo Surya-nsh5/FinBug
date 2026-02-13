@@ -5,17 +5,17 @@ import IN_IMG from '../../assets/images/in.jpg';
 
 const AuthLayout = ({ children, showRight = true }) => {
   return (
-    <div className="min-h-screen flex bg-white">
+    <div className="min-h-screen flex bg-[var(--color-bg)] transition-colors duration-200">
       <div className="w-full md:w-[60vw] px-6 md:px-12 py-8 flex flex-col">
         <Link to="/" className="flex items-center gap-2 mb-12">
           <img src={finbugLogo} alt="FinBug" className="w-10 h-10" />
-          <span className="text-xl font-semibold">FinBug</span>
+          <span className="text-xl font-semibold text-[var(--color-text)]">FinBug</span>
         </Link>
         {children}
       </div>
 
       {showRight && (
-        <div className="hidden md:block w-[40vw] h-screen relative">
+        <div className="hidden md:block w-[40vw] relative">
           <img src={IN_IMG} alt="right-side" className="absolute inset-0 w-full h-full object-cover" />
         </div>
       )}

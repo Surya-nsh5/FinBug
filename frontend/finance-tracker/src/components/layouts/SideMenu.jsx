@@ -37,9 +37,9 @@ const SideMenu = ({ activeMenu }) => {
     };
 
     return (
-        <div className="fixed left-0 top-0 w-64 h-screen bg-white border-r border-gray-200 p-6 z-20 flex flex-col overflow-y-auto">
+        <div className="w-full h-full bg-[var(--color-card)] border-r border-[var(--color-border)] p-6 flex flex-col overflow-y-auto transition-colors duration-300">
             {/* FINBUG Title */}
-            <h1 className="text-xl font-bold text-gray-900 mb-6">FINBUG</h1>
+            <h1 className="text-xl font-bold text-[var(--color-text)] mb-6">FINBUG</h1>
 
             {/* User Profile Section */}
             <div className="flex flex-col items-center gap-3 mb-8">
@@ -57,7 +57,7 @@ const SideMenu = ({ activeMenu }) => {
                         style="text-lg"
                     />
                 )}
-                <h5 className="text-gray-900 font-bold text-lg text-center">
+                <h5 className="text-[var(--color-text)] font-bold text-lg text-center">
                     {user?.fullName || "Mike William"}
                 </h5>
             </div>
@@ -68,8 +68,8 @@ const SideMenu = ({ activeMenu }) => {
                     <button
                         key={`menu_${index}`}
                         className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${activeMenu === item.label
-                            ? "bg-purple-600 text-white shadow-md"
-                            : "text-gray-700 hover:bg-gray-50"
+                            ? "bg-purple-600 text-white shadow-md shadow-purple-500/20"
+                            : "text-[var(--color-text)] hover:bg-[var(--color-input)] hover:text-purple-600 dark:hover:text-purple-400 opacity-80 hover:opacity-100"
                             }`}
                         onClick={() => handleClick(item.path)}
                     >

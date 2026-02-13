@@ -9,7 +9,7 @@ const CSVBulkUpload = ({ type, onUploadComplete, apiPath }) => {
 
   const handleFileSelect = async (e) => {
     const file = e.target.files[0];
-    
+
     if (!file) return;
 
     // Validate file type
@@ -84,13 +84,12 @@ const CSVBulkUpload = ({ type, onUploadComplete, apiPath }) => {
       <button
         onClick={handleButtonClick}
         disabled={uploading}
-        className={`flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium ${
-          uploading ? 'opacity-50 cursor-not-allowed' : ''
-        }`}
+        className={`flex items-center gap-2 px-4 py-2 ${type === "Income" ? "bg-green-600 hover:bg-green-700" : type === "Expense" ? "bg-red-600 hover:bg-red-700" : "bg-blue-600 hover:bg-blue-700"} text-white rounded-lg transition text-sm font-medium shadow-sm hover:shadow-md ${uploading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         title={`Upload ${type}s from CSV file`}
       >
-        <LuUpload className={uploading ? 'animate-pulse' : ''} />
-        {uploading ? 'Uploading...' : `Import CSV`}
+        <LuUpload className={uploading ? "animate-pulse" : ""} />
+        {uploading ? "Uploading..." : `Import ${type}`}
       </button>
     </>
   );

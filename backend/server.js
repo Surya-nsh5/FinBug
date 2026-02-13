@@ -9,6 +9,7 @@ const expenseRoutes = require("./routes/expenseRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const billScanRoutes = require("./routes/billScanRoutes");
+const transactionRoutes = require("./routes/transactionRoutes");
 
 
 // Force restart to load env vars
@@ -32,7 +33,7 @@ const corsOptions = {
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      callback(null, true); // For now, allow all origins to debug
+      callback(new Error('Not allowed by CORS'));
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -77,6 +78,7 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '10mb', charset: 'utf-8' }));
 app.use(express.urlencoded({ extended: true, charset: 'utf-8' }));
 
+// Connect to Database
 connectDB();
 
 app.use("/api/v1/auth", authRoutes);
@@ -85,6 +87,7 @@ app.use("/api/v1/expense", expenseRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/ai", aiRoutes);
 app.use("/api/v1/bill", billScanRoutes);
+app.use("/api/v1/transaction", transactionRoutes);
 
 // Server uploads folder - Not used in Serverless/Memory Storage mode
 // app.use("/uploads", express.static(path.join(__dirname, "uploads")));

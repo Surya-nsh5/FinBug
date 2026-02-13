@@ -4,7 +4,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const scanBillImage = async (imageBuffer, imageType) => {
     try {
-        const model = genAI.getGenerativeModel({ 
+        const model = genAI.getGenerativeModel({
             model: "gemini-2.0-flash"
         });
 
@@ -35,17 +35,28 @@ Important:
         const response = await result.response;
         const text = response.text();
 
-        // Extract JSON from response
+        // Extract JSON from response more robustly
         let jsonText = text.trim();
-        
-        // Remove markdown code blocks if present
-        if (jsonText.startsWith('```json')) {
-            jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
-        } else if (jsonText.startsWith('```')) {
-            jsonText = jsonText.replace(/```\n?/g, '');
+
+        // Remove markdown code blocks if present (handle ```json, ```JSON, or just ```)
+        if (jsonText.includes('```')) {
+            jsonText = jsonText.replace(/```(json|JSON)?\n?([\s\S]*?)```/g, '$2').trim();
         }
 
-        const extractedData = JSON.parse(jsonText);
+        let extractedData;
+        try {
+            extractedData = JSON.parse(jsonText);
+        } catch (parseError) {
+            // Fallback: try to find first { and last }
+            const firstBrace = jsonText.indexOf('{');
+            const lastBrace = jsonText.lastIndexOf('}');
+            if (firstBrace !== -1 && lastBrace !== -1) {
+                const cleanJson = jsonText.substring(firstBrace, lastBrace + 1);
+                extractedData = JSON.parse(cleanJson);
+            } else {
+                throw new Error('Could not parse JSON from AI response');
+            }
+        }
 
         return {
             success: true,

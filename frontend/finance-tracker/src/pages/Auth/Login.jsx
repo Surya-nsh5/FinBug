@@ -62,8 +62,8 @@ const Login = () => {
     <AuthLayout showRight={true}>
       <div className="w-full max-w-md mx-auto flex flex-col justify-center flex-1">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-3">Welcome back</h1>
-          <p className="text-lg text-gray-600">
+          <h1 className="text-4xl font-bold mb-3 text-[var(--color-text)]">Welcome back</h1>
+          <p className="text-lg text-[var(--color-text)] opacity-70">
             Enter your details to log in to your account
           </p>
         </div>
@@ -96,14 +96,14 @@ const Login = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full px-6 py-3 bg-black text-white rounded-lg font-medium text-base transition-colors ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-gray-800'}`}
+            className={`w-full px-6 py-3 bg-purple-600 text-white rounded-lg font-medium text-base transition-colors shadow-md hover:shadow-lg ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-purple-700'}`}
           >
             {isLoading ? "Logging in..." : "Log in"}
           </button>
 
-          <p className="text-sm text-gray-600 text-center">
+          <p className="text-sm text-[var(--color-text)] opacity-70 text-center">
             Don't have an account?{" "}
-            <Link className="font-medium text-black underline" to="/signup">
+            <Link className="font-medium text-[var(--color-text)] underline" to="/signup">
               Sign up
             </Link>
           </p>

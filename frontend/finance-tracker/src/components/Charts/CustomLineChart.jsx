@@ -1,16 +1,18 @@
 import React, { useMemo } from 'react'
 import { XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Area, AreaChart } from "recharts";
+import { useTheme } from "../../context/ThemeContext";
 
 const CustomLineChart = React.memo(({ data = [] }) => {
+    const { isDarkMode } = useTheme();
 
     const CustomToolTip = React.useCallback(({ active, payload }) => {
         if (active && payload && payload.length) {
             const label = payload[0].payload.category || payload[0].payload.source || 'N/A';
             return (
-                <div className="bg-white shadow-md rounded-lg p-2 border border-gray-300">
-                    <p className="text-xs font-semibold text-purple-800 mb-1">{label}</p>
-                    <p className="text-sm text-gray-600">
-                        Amount: <span className="text-sm font-medium text-gray-900">₹{payload[0].payload.amount}</span>
+                <div className="bg-[var(--color-card)] shadow-md rounded-lg p-2 border border-[var(--color-border)]">
+                    <p className="text-xs font-semibold text-purple-600 mb-1">{label}</p>
+                    <p className="text-sm text-[var(--color-text)] opacity-70">
+                        Amount: <span className="text-sm font-medium text-[var(--color-text)]">₹{payload[0].payload.amount}</span>
                     </p>
                 </div>
             );
@@ -26,34 +28,16 @@ const CustomLineChart = React.memo(({ data = [] }) => {
         return data;
     }, [data]);
 
-    // Custom tick formatter to show only day number
-    const formatXAxisTick = (value) => {
-        // Extract just the day number if it contains month
-        return value.split(' ')[0];
-    };
-
-    return <div className="bg-white">
-        <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={chartData}>
-                <defs>
-                    <linearGradient id='incomeGradient' x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor='#875cf5' stopOpacity={0.4} />
-                        <stop offset="95%" stopColor='#875cf5' stopOpacity={0} />
-                    </linearGradient>
-                </defs>
-
-                <CartesianGrid stroke='none' />
                 <XAxis
                     dataKey="month"
-                    tick={{ fontSize: 11, fill: "#555" }}
+                    tick={{ fontSize: 11, fill: isDarkMode ? "#94a3b8" : "#555" }}
                     stroke='none'
                     tickCount={8}
                     minTickGap={30}
                     angle={0}
-                    tickFormatter={formatXAxisTick}
                 />
-                <YAxis tick={{ fontSize: 12, fill: "#555" }} stroke='none' />
-                <Tooltip content={<CustomToolTip />} />
+                <YAxis tick={{ fontSize: 12, fill: isDarkMode ? "#94a3b8" : "#555" }} stroke='none' />
+                <Tooltip content={<CustomToolTip />} cursor={false} />
 
                 <Area
                     type="monotone"
@@ -65,9 +49,9 @@ const CustomLineChart = React.memo(({ data = [] }) => {
                     animationDuration={200}
                     animationEasing="ease-out"
                 />
-            </AreaChart>
-        </ResponsiveContainer>
-    </div>
+            </AreaChart >
+        </ResponsiveContainer >
+    </div >
 });
 
 CustomLineChart.displayName = 'CustomLineChart';

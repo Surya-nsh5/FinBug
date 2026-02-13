@@ -51,7 +51,7 @@ const InstallPWA = () => {
     if (isStandalone || !isOpen || location.pathname !== '/') return null;
 
     return (
-        <div className="fixed bottom-5 right-5 z-[60] bg-white rounded-2xl shadow-xl border border-gray-100 p-4 w-80 animate-slide-up">
+        <div className="fixed bottom-5 right-5 z-[60] bg-white rounded-2xl shadow-xl border border-gray-100 p-4 w-[calc(100%-40px)] sm:w-80 animate-slide-up">
             {/* Close Button */}
             <button
                 onClick={() => setIsOpen(false)}

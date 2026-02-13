@@ -90,8 +90,9 @@ export default defineConfig({
                 maxEntries: 100,
                 maxAgeSeconds: 86400 // 1 day
               },
+              // API call caching - removing status 0 to prevent caching failed/opaque requests
               cacheableResponse: {
-                statuses: [0, 200]
+                statuses: [200]
               },
               networkTimeoutSeconds: 10
             }
