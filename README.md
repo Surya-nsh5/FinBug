@@ -4,7 +4,7 @@ AI-powered personal finance tracker with real-time insights and bill scanning.
 
 ## 🌐 Live Demo
 
-- **Frontend**: [https://finbug.netlify.app](https://finbug.netlify.app)
+- **Frontend**: [https://finbug.vercel.app](https://finbug.vercel.app)
 - **Backend API**: [https://fin-bug.vercel.app](https://fin-bug.vercel.app)
 
 ## ✨ Features
@@ -23,7 +23,7 @@ AI-powered personal finance tracker with real-time insights and bill scanning.
 **Frontend**: React 19, Vite, TailwindCSS, Recharts, PWA  
 **Backend**: Node.js, Express, MongoDB, JWT  
 **AI**: Google Gemini API  
-**Deployment**: Netlify (Frontend), Vercel (Backend)
+**Deployment**: Vercel (Frontend & Backend)
 
 ## 🚀 Quick Start
 
@@ -80,11 +80,12 @@ Visit `http://localhost:5173`
 
 ## 📦 Deployment
 
-### Frontend (Netlify)
-1. Connect GitHub repository to Netlify
-2. Set build command: `npm run build`
-3. Set publish directory: `build`
-4. Add environment variable: `VITE_API_BASE_URL=https://fin-bug.vercel.app`
+### Frontend (Vercel)
+1. Connect GitHub repository to Vercel
+2. Set root directory: `frontend/finance-tracker`
+3. Set build command: `npm run build`
+4. Set output directory: `dist`
+5. Add environment variable: `VITE_API_BASE_URL=https://fin-bug.vercel.app`
 
 ### Backend (Vercel)
 1. Connect GitHub repository to Vercel

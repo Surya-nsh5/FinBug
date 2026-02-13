@@ -15,36 +15,46 @@ const transactionRoutes = require("./routes/transactionRoutes");
 // Force restart to load env vars
 const app = express();
 
-// CORS configuration - Enhanced for Vercel serverless
+// CORS configuration - Robust for Vercel/Production deployment
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "https://finbug.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "http://localhost:5000"
+].filter(Boolean);
+
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = [
-      process.env.CLIENT_URL,
-      "https://finbug.netlify.app",
-      "https://expense-tracker-frontend-tau.vercel.app",
-      "http://localhost:5173",
-      "http://localhost:3000",
-      "http://localhost:5000"
-    ].filter(origin => origin); // Remove undefined/null/empty strings
-
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Allow requests with no origin (like mobile apps, curl, or same-origin)
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    // Check if origin is in the allowed list
+    const isAllowed = allowedOrigins.some(allowed => {
+      if (!allowed) return false;
+      // Case-insensitive comparison and trailing slash check
+      const normalizedAllowed = allowed.toLowerCase().replace(/\/$/, "");
+      const normalizedOrigin = origin.toLowerCase().replace(/\/$/, "");
+      return normalizedAllowed === normalizedOrigin;
+    });
+
+    if (isAllowed) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      console.log(`CORS blocked for origin: ${origin}`);
+      callback(null, false); // Don't throw error, just tell cors it's not allowed
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   credentials: true,
   optionsSuccessStatus: 200
 };
 
+// Apply CORS to all routes
 app.use(cors(corsOptions));
 
-// Handle preflight requests explicitly
+// Handle preflight requests for all routes
 app.options(/.*/, cors(corsOptions));
 
 // Compression middleware for responses
@@ -93,7 +103,7 @@ app.use("/api/v1/transaction", transactionRoutes);
 // app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Note: Static file serving removed for Vercel deployment
-// Frontend is deployed separately on Netlify
+// Frontend is deployed separately on Vercel
 
 const PORT = process.env.PORT || 5000;
 
