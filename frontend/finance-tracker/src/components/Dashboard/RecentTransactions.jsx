@@ -2,9 +2,10 @@ import moment from 'moment';
 import React, { useMemo, useCallback } from 'react'
 import { LuArrowRight } from 'react-icons/lu';
 import TransactionInfoCard from '../Cards/TransactionInfoCard';
+import Skeleton from '../common/Skeleton';
 
 
-const RecentTransactions = React.memo(({ transactions, onSeeMore }) => {
+const RecentTransactions = React.memo(({ transactions, onSeeMore, loading = false }) => {
   // Memoize recent transactions to prevent unnecessary re-renders
   const recentTransactions = useMemo(() => {
     if (!transactions || !Array.isArray(transactions)) return [];
@@ -14,6 +15,30 @@ const RecentTransactions = React.memo(({ transactions, onSeeMore }) => {
   const handleSeeMore = useCallback(() => {
     onSeeMore?.();
   }, [onSeeMore]);
+
+  if (loading) {
+    return (
+      <div className='card h-full flex flex-col'>
+        <div className="flex items-start justify-between mb-4 sm:mb-6 flex-shrink-0">
+          <Skeleton width="150px" height="24px" />
+          <Skeleton width="60px" height="20px" />
+        </div>
+        <div className="space-y-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="flex items-center gap-4">
+              <Skeleton variant="circular" width="48px" height="48px" />
+              <div className="flex-1 space-y-2">
+                <Skeleton width="60%" height="16px" />
+                <Skeleton width="40%" height="12px" />
+              </div>
+              <Skeleton width="80px" height="20px" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className='card h-full flex flex-col'>
       <div className="flex items-start justify-between mb-4 sm:mb-6 flex-shrink-0">

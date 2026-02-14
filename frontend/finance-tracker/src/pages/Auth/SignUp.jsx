@@ -18,9 +18,15 @@ const Signup = () => {
 
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { updateUser } = useContext(UserContext);
-
+  const { updateUser, isAuthenticated } = useContext(UserContext);
   const navigate = useNavigate();
+
+  // Redirect if already authenticated
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
 
   // Handle Signup form Submit
   const handleSignup = async (e) => {

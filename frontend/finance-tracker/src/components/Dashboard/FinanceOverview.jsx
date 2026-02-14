@@ -1,12 +1,13 @@
 import React, { useMemo } from "react";
 import CustomPieChart from "../Charts/CustomPieChart";
 import { addThousandsSeparator } from "../../utils/helper";
+import Skeleton from "../common/Skeleton";
 
 // Colors: Purple for Balance, Orange for Income, Red for Expenses
 const COLORS = ["#875cf5", "#FF6900", "#FA2C37"];
 
 const FinanceOverview = React.memo(
-  ({ totalBalance, totalIncome, totalExpenses }) => {
+  ({ totalBalance, totalIncome, totalExpenses, loading = false }) => {
     // Memoize data preparation for faster rendering
     const { financeData, hasData, balance, legendData } = useMemo(() => {
       const bal = Number(totalBalance) || 0;
@@ -42,7 +43,16 @@ const FinanceOverview = React.memo(
         </div>
 
         <div className="w-full flex-1 flex items-center justify-center">
-          {hasData ? (
+          {loading ? (
+            <div className="w-full flex flex-col items-center gap-6 py-4">
+              <Skeleton variant="circular" width="180px" height="180px" />
+              <div className="flex gap-4 justify-center w-full">
+                <Skeleton width="60px" height="12px" />
+                <Skeleton width="60px" height="12px" />
+                <Skeleton width="60px" height="12px" />
+              </div>
+            </div>
+          ) : hasData ? (
             <CustomPieChart
               data={financeData}
               colors={COLORS}

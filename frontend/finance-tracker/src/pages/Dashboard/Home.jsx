@@ -92,6 +92,7 @@ const Home = () => {
             <RecentTransactions
               transactions={dashboardData?.recentTransactions}
               onSeeMore={() => navigate("/transactions")}
+              loading={loading}
             />
           </div>
 
@@ -103,6 +104,7 @@ const Home = () => {
               totalBalance={dashboardData?.totalBalance || 0}
               totalIncome={dashboardData?.totalIncome || 0}
               totalExpenses={dashboardData?.totalExpenses || 0}
+              loading={loading}
             />
           </div>
         </div>
@@ -117,6 +119,7 @@ const Home = () => {
             <RecentIncomeWithChart
               data={dashboardData?.last60DaysIncome?.transactions || []}
               totalIncome={dashboardData?.totalIncome || 0}
+              loading={loading}
             />
           </div>
 
@@ -127,6 +130,7 @@ const Home = () => {
             <RecentIncome
               transactions={dashboardData?.last60DaysIncome?.transactions || []}
               onSeeMore={() => navigate("/transactions", { state: { activeTab: "income" } })}
+              loading={loading}
             />
           </div>
         </div>
@@ -142,6 +146,7 @@ const Home = () => {
                 dashboardData?.last30DaysExpenses?.transactions || []
               }
               onSeeMore={() => navigate("/transactions", { state: { activeTab: "expense" } })}
+              loading={loading}
             />
           </div>
 
@@ -152,6 +157,7 @@ const Home = () => {
           >
             <Last30DaysExpenses
               data={dashboardData?.last30DaysExpenses?.transactions || []}
+              loading={loading}
             />
           </div>
         </div>

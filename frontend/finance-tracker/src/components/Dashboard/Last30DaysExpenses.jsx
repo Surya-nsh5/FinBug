@@ -1,8 +1,9 @@
 import React, { useMemo } from "react";
 import moment from "moment";
 import CustomBarChart from "../Charts/CustomBarChart";
+import Skeleton from "../common/Skeleton";
 
-const Last30DaysExpenses = React.memo(({ data }) => {
+const Last30DaysExpenses = React.memo(({ data, loading = false }) => {
   // Memoize chart data preparation for faster rendering - no useEffect needed
   const chartData = useMemo(() => {
     if (!data || !Array.isArray(data) || data.length === 0) {
@@ -31,7 +32,13 @@ const Last30DaysExpenses = React.memo(({ data }) => {
       </div>
 
       <div className="w-full -mx-2 flex-1 flex items-center">
-        {chartData.length > 0 ? (
+        {loading ? (
+          <div className="w-full h-48 flex items-end gap-2 px-4 pb-4">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <Skeleton key={i} width="100%" height={`${Math.random() * 60 + 20}%`} />
+            ))}
+          </div>
+        ) : chartData.length > 0 ? (
           <CustomBarChart data={chartData} />
         ) : (
           <div className="text-center py-12 sm:py-16 text-[var(--color-text)] opacity-40 w-full">

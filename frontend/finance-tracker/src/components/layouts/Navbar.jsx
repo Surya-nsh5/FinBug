@@ -33,11 +33,6 @@ const Navbar = ({ activeMenu }) => {
                 <LogoutConfirm
                   onCancel={() => setOpenLogoutModal(false)}
                   onLogout={() => {
-                    try {
-                      localStorage.clear();
-                    } catch {
-                      // Ignore localStorage errors
-                    }
                     clearUser();
                     setOpenLogoutModal(false);
                     navigate('/');

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { persistence } from './persistence';
 
 const getBaseUrl = () => {
     if (import.meta.env.VITE_API_BASE_URL) {
@@ -27,7 +28,7 @@ const axiosInstance = axios.create({
 // Request interceptor to add auth accessToken
 axiosInstance.interceptors.request.use(
     (config) => {
-        const accessToken = localStorage.getItem('token');
+        const accessToken = persistence.getToken();
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
         }
@@ -47,8 +48,9 @@ axiosInstance.interceptors.response.use(
         // Handle common errors globally
         if (error.response) {
             if (error.response.status === 401) {
-                // Redirect to login or refresh token logic
-                window.location.href = '/login';
+                // We let the app handle the redirect to login via context/hooks
+                // rather than forcing a hard page reload here
+                console.warn("Unauthorized request detected (401)");
             } else if (error.response.status === 500) {
                 console.error("Internal Server Error:", error.response.data);
             }

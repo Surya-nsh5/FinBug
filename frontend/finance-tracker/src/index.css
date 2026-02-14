@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -55,8 +54,17 @@
     font-weight: 700;
   }
 
-  /* Light mode defaults - Warm, creamy palette for eye comfort */
+  /* Theme Defaults (Set to Dark Mode) */
   :root {
+    --color-bg: #0f172a;
+    --color-text: #f8fafc;
+    --color-card: #1e293b;
+    --color-border: #334155;
+    --color-input: #334155;
+  }
+
+  /* Light mode overrides (optional, kept for structure) */
+  .light {
     --color-bg: #faf8f5;
     /* Soft cream background - easy on eyes */
     --color-text: #1a1512;
@@ -67,15 +75,6 @@
     /* Warm gray borders */
     --color-input: #f5f1ed;
     /* Light warm beige for inputs */
-  }
-
-  /* Dark mode overrides */
-  .dark {
-    --color-bg: #0f172a;
-    --color-text: #f8fafc;
-    --color-card: #1e293b;
-    --color-border: #334155;
-    --color-input: #334155;
   }
 
   body {

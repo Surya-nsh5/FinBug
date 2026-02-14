@@ -2,13 +2,22 @@
 // import finbugLogo from '../../assets/finbug.png'
 // import heroVideo from '../../assets/videos/video.mp4'
 import { useNavigate } from 'react-router-dom'
-import { useRef } from 'react'
+import { useRef, useContext, useEffect } from 'react'
+import { UserContext } from '../../context/UserContext'
 import toast from 'react-hot-toast'
 import '../../index.css'
 
 const Landing = () => {
     const navigate = useNavigate();
     const contactRef = useRef(null);
+    const { isAuthenticated } = useContext(UserContext);
+
+    // Redirect if already authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/dashboard');
+        }
+    }, [isAuthenticated, navigate]);
 
 
     const handleContactSubmit = async (e) => {

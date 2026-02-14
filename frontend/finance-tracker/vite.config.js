@@ -8,25 +8,40 @@ export default defineConfig({
   base: '/',
   build: {
     outDir: 'build',
-    // Enable minification with esbuild (faster and built-in)
-    minify: 'esbuild',
+    // Switch to Terser for more aggressive minification in production
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console logs in production for security and size
+        drop_debugger: true,
+        pure_funcs: ['console.info', 'console.debug', 'console.warn']
+      },
+      format: {
+        comments: false, // Remove comments from production bundle
+      }
+    },
     // Optimize chunk size
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 800,
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Vendor chunks
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'chart-vendor': ['recharts'],
-          'ui-vendor': ['react-hot-toast', 'react-icons', 'emoji-picker-react'],
-          'utils-vendor': ['axios', 'moment']
+        // Granular manual chunks for better caching
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('recharts')) return 'vendor-charts';
+            if (id.includes('react-icons') || id.includes('hi') || id.includes('lu') || id.includes('io')) return 'vendor-icons';
+            if (id.includes('emoji-picker-react')) return 'vendor-emoji';
+            if (id.includes('moment') || id.includes('axios')) return 'vendor-utils';
+            if (id.includes('react')) return 'vendor-core';
+            return 'vendor-misc';
+          }
         }
       }
     },
-    // Enable source maps for production debugging (optional, disable for smaller builds)
+    // Enable source maps only if explicitly needed (disabled for speed/size)
     sourcemap: false,
-    // Optimize CSS
+    // Optimize CSS handling
     cssCodeSplit: true,
+    cssMinify: true,
     // Enable asset inlining for small files
     assetsInlineLimit: 4096 // 4kb
   },

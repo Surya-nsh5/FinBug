@@ -1,31 +1,35 @@
 import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 import axiosInstance from '../utils/axiosinstance';
 import { API_PATHS } from '../utils/apiPaths';
+import { persistence } from '../utils/persistence';
 
 const UserContext = createContext();
 export { UserContext };
 
 const UserProvider = ({ children }) => {
-    // Initialize from localStorage so reloads/dev helper keep the user visible
-    const [user, setUser] = useState(() => {
-        try {
-            const raw = localStorage.getItem('user');
-            return raw ? JSON.parse(raw) : null;
-        } catch {
-            return null;
-        }
-    });
+    // Initial state from persistent storage
+    const [user, setUser] = useState(() => persistence.getUser());
 
+    // Initial auth check status: 
+    // If we have a token but no user object, we must check.
+    // If we have both, we assume authenticated but verify in background.
     const [isAuthChecking, setIsAuthChecking] = useState(() => {
-        // Optimistic check: If we have a user and token, don't block the UI
-        const hasToken = !!localStorage.getItem('token');
-        const hasUser = !!localStorage.getItem('user');
+        const hasToken = !!persistence.getToken();
+        const hasUser = !!persistence.getUser();
         return hasToken && !hasUser;
     });
 
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
-        return !!(localStorage.getItem('token') && localStorage.getItem('user'));
+        return !!(persistence.getToken() && persistence.getUser());
     });
+
+    // Consolidate session clearing
+    const clearSession = useCallback(() => {
+        setUser(null);
+        setIsAuthenticated(false);
+        persistence.clearToken();
+        persistence.clearUser();
+    }, []);
 
     // Auto-login: Verify token and restore session on app load
     useEffect(() => {
@@ -36,7 +40,7 @@ const UserProvider = ({ children }) => {
                     navigator.storage.persist().catch(() => { });
                 }
 
-                const token = localStorage.getItem('token');
+                const token = persistence.getToken();
                 if (!token) {
                     setIsAuthChecking(false);
                     setIsAuthenticated(false);
@@ -48,28 +52,26 @@ const UserProvider = ({ children }) => {
 
                     let userData = null;
                     if (response.data) {
-                        if (response.data.user) {
-                            userData = response.data.user;
-                        } else if (response.data._id || response.data.email) {
-                            userData = response.data;
-                        }
+                        userData = response.data.user || (response.data._id ? response.data : null);
                     }
 
                     if (userData) {
                         setUser(userData);
                         setIsAuthenticated(true);
-                        localStorage.setItem('user', JSON.stringify(userData));
+                        persistence.setUser(userData);
                     }
                 } catch (error) {
                     // ONLY clear session if it's an auth error (401/403)
                     // If it's a network error or 500, keep the existing session data
                     if (error.response && [401, 403].includes(error.response.status)) {
-                        console.log('Authentication expired or invalid, clearing session');
+                        console.warn('Authentication expired or invalid, clearing session');
                         clearSession();
                     } else {
                         console.log('Network error or server down, keeping existing session');
-                        // We still have local data, so keep isAuthenticated true
-                        setIsAuthenticated(true);
+                        // If we have local data, we remain authenticated even if offline
+                        if (persistence.getToken() && persistence.getUser()) {
+                            setIsAuthenticated(true);
+                        }
                     }
                 }
             } catch (error) {
@@ -80,72 +82,41 @@ const UserProvider = ({ children }) => {
         };
 
         verifyAndRestoreSession();
-    }, []); // Run only once on mount
+    }, [clearSession]);
 
-    // Helper to clear session
-    const clearSession = () => {
-        setUser(null);
-        setIsAuthenticated(false);
-        try {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-        } catch {
-            // Ignore localStorage errors
-        }
-    };
-
-    // keep localStorage in sync with context
-    useEffect(() => {
-        try {
-            if (user) {
-                localStorage.setItem('user', JSON.stringify(user));
-                setIsAuthenticated(true);
-            } else {
-                localStorage.removeItem('user');
-                setIsAuthenticated(false);
-            }
-        } catch {
-            // Ignore localStorage errors
-        }
-    }, [user]);
-
-    // Memoize functions to prevent unnecessary re-renders
+    // Update user state and persistence
     const updateUser = useCallback((userData) => {
+        setUser(userData);
+        setIsAuthenticated(true);
+        if (userData) {
+            persistence.setUser(userData);
+        } else {
+            persistence.clearUser();
+        }
+    }, []);
+
+    // Login helper
+    const login = useCallback((userData, token) => {
+        persistence.setToken(token);
+        persistence.setUser(userData);
         setUser(userData);
         setIsAuthenticated(true);
     }, []);
 
-    const clearUser = useCallback(() => {
-        clearSession();
-    }, []);
-
-    // Login function
-    const login = useCallback((userData, token) => {
-        try {
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(userData));
-            setUser(userData);
-            setIsAuthenticated(true);
-        } catch (error) {
-            console.error('Login error:', error);
-        }
-    }, []);
-
-    // Logout function
+    // Logout helper
     const logout = useCallback(() => {
         clearSession();
-    }, []);
+    }, [clearSession]);
 
-    // Memoize context value to prevent unnecessary re-renders
     const contextValue = useMemo(() => ({
         user,
         updateUser,
-        clearUser,
+        clearUser: logout,
         login,
         logout,
         isAuthChecking,
         isAuthenticated
-    }), [user, updateUser, clearUser, login, logout, isAuthChecking, isAuthenticated]);
+    }), [user, updateUser, logout, login, isAuthChecking, isAuthenticated]);
 
     return (
         <UserContext.Provider value={contextValue}>

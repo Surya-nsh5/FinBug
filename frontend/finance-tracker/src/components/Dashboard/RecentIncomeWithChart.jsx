@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import CustomBarChart from "../Charts/CustomBarChart";
 import { addThousandsSeparator } from "../../utils/helper";
+import Skeleton from "../common/Skeleton";
 
 const COLORS = [
   "#875CF5",
@@ -11,7 +12,7 @@ const COLORS = [
   "#c4b5fd",
 ];
 
-const RecentIncomeWithChart = React.memo(({ data, totalIncome }) => {
+const RecentIncomeWithChart = React.memo(({ data, totalIncome, loading = false }) => {
   // Memoize chart data preparation for faster rendering
   const chartData = useMemo(() => {
     if (!data || !Array.isArray(data) || data.length === 0) {
@@ -48,7 +49,12 @@ const RecentIncomeWithChart = React.memo(({ data, totalIncome }) => {
         <h5 className="text-base sm:text-lg font-bold text-[var(--color-text)] transition-colors duration-200 hover:text-purple-600">
           Last 60 Days Income
         </h5>
-        {chartData.length > 0 && (
+        {loading ? (
+          <div className="text-right flex-shrink-0 space-y-2">
+            <Skeleton width="60px" height="12px" />
+            <Skeleton width="80px" height="24px" />
+          </div>
+        ) : chartData.length > 0 && (
           <div className="text-right flex-shrink-0">
             <p className="text-xs text-[var(--color-text)] opacity-70 mb-1">Total Income</p>
             <p className="text-lg sm:text-xl font-bold text-[var(--color-text)]">
@@ -59,7 +65,13 @@ const RecentIncomeWithChart = React.memo(({ data, totalIncome }) => {
       </div>
 
       <div className="w-full -mx-2 flex-1 flex items-center">
-        {chartData.length > 0 ? (
+        {loading ? (
+          <div className="w-full h-48 flex items-end gap-2 px-4 pb-4">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <Skeleton key={i} width="100%" height={`${Math.random() * 60 + 20}%`} />
+            ))}
+          </div>
+        ) : chartData.length > 0 ? (
           <CustomBarChart
             data={chartData}
             colors={COLORS}
