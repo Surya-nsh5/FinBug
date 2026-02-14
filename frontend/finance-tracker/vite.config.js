@@ -8,41 +8,30 @@ export default defineConfig({
   base: '/',
   build: {
     outDir: 'build',
-    // Switch to Terser for more aggressive minification in production
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // Remove console logs in production for security and size
-        drop_debugger: true,
-        pure_funcs: ['console.info', 'console.debug', 'console.warn']
-      },
-      format: {
-        comments: false, // Remove comments from production bundle
-      }
+    // Revert to esbuild for faster and more stable builds while maintaining production quality
+    minify: 'esbuild',
+    // Remove console logs and debuggers from production build
+    esbuild: {
+      drop: ['console', 'debugger'],
     },
     // Optimize chunk size
-    chunkSizeWarningLimit: 800,
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        // Granular manual chunks for better caching
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('recharts')) return 'vendor-charts';
-            if (id.includes('react-icons') || id.includes('hi') || id.includes('lu') || id.includes('io')) return 'vendor-icons';
-            if (id.includes('emoji-picker-react')) return 'vendor-emoji';
-            if (id.includes('moment') || id.includes('axios')) return 'vendor-utils';
-            if (id.includes('react')) return 'vendor-core';
-            return 'vendor-misc';
-          }
+        // More robust chunking strategy to prevent "Object.defineProperty" errors
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-charts': ['recharts'],
+          'vendor-ui': ['react-icons', 'emoji-picker-react', 'react-hot-toast'],
+          'vendor-utils': ['axios', 'moment']
         }
       }
     },
-    // Enable source maps only if explicitly needed (disabled for speed/size)
+    // Enable source maps only if needed
     sourcemap: false,
     // Optimize CSS handling
     cssCodeSplit: true,
     cssMinify: true,
-    // Enable asset inlining for small files
     assetsInlineLimit: 4096 // 4kb
   },
   // Optimize dependencies
